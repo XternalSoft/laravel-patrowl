@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Xternalsoft\LaravelPatrowl\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class LaravelPatrowlCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laravel-patrowl';
 
     public $description = 'My command';
 
