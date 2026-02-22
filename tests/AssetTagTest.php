@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Http;
 use Xternalsoft\LaravelPatrowl\Data\AssetTagData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetTagData;
-use Xternalsoft\LaravelPatrowl\Data\PaginatedResponseData;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
 
 it('can create an asset tag', function () {

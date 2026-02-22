@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Http;
-use Xternalsoft\LaravelPatrowl\Data\AssetGroupInListData;
 use Xternalsoft\LaravelPatrowl\Data\AssetGroupData;
+use Xternalsoft\LaravelPatrowl\Data\AssetGroupInListData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetGroupData;
 use Xternalsoft\LaravelPatrowl\Enums\ComplexityEnum;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;

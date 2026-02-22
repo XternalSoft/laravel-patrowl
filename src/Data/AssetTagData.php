@@ -10,8 +10,7 @@ final class AssetTagData
         public int $id,
         public string $value,
         public int $organization
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

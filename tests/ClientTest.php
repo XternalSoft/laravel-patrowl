@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Xternalsoft\LaravelPatrowl\Exceptions\MissingApiTokenException;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
 
@@ -14,4 +16,3 @@ it('can get the default organization id', function () {
 
     expect(LaravelPatrowl::getDefaultOrganizationId())->toBe(123);
 });
-

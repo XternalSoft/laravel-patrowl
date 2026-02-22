@@ -38,8 +38,7 @@ final class AssetInListData
         public ?bool $monitoredSlotLocked = null,
         public ?string $ipType = null,
         public ?RelatedTechnologyData $relatedTechnologies = null
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

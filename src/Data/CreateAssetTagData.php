@@ -12,8 +12,7 @@ final class CreateAssetTagData
         public string $value,
         public ?int $organization = null,
         public ?int $id = null
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

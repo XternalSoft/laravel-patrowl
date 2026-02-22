@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Xternalsoft\LaravelPatrowl\Data;
 
-class AssetOwnerData
+final class AssetOwnerData
 {
     public function __construct(
         public int $id,
         public string $email
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

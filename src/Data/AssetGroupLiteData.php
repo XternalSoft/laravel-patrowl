@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Xternalsoft\LaravelPatrowl\Data;
 
-class AssetGroupLiteData
+final class AssetGroupLiteData
 {
     public function __construct(
         public int $id,
         public ?string $title = null,
         public ?string $description = null,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

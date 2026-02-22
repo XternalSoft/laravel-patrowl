@@ -11,8 +11,7 @@ final class AddTagToAssetData
     public function __construct(
         public string $value,
         public ?int $organization = null
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

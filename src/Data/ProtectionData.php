@@ -9,8 +9,7 @@ final class ProtectionData
     public function __construct(
         public ?string $status = null,
         public ?string $availability = null
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

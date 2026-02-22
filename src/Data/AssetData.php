@@ -9,11 +9,8 @@ use Xternalsoft\LaravelPatrowl\Enums\ComplexityEnum;
 use Xternalsoft\LaravelPatrowl\Enums\ExposureEnum;
 use Xternalsoft\LaravelPatrowl\Enums\LivenessEnum;
 use Xternalsoft\LaravelPatrowl\Enums\TypeEf5Enum;
-use Xternalsoft\LaravelPatrowl\Data\AssetGroupLiteData;
-use Xternalsoft\LaravelPatrowl\Data\DomainLiteData;
-use Xternalsoft\LaravelPatrowl\Data\AssetOwnerData;
 
-class AssetData
+final class AssetData
 {
     public function __construct(
         public int $id,
@@ -53,8 +50,7 @@ class AssetData
         /** @var array<array> */
         public array $suborganizations_display,
         public mixed $ip_state
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

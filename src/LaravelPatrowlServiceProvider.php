@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xternalsoft\LaravelPatrowl;
 
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class LaravelPatrowlServiceProvider extends PackageServiceProvider
+final class LaravelPatrowlServiceProvider extends PackageServiceProvider
 {
     public function register(): void
     {
