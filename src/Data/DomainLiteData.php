@@ -6,15 +6,14 @@ namespace Xternalsoft\LaravelPatrowl\Data;
 
 use Xternalsoft\LaravelPatrowl\Enums\AssetOutsideBusinessHoursEnum;
 
-class DomainLiteData
+final class DomainLiteData
 {
     public function __construct(
         public int $id,
         public string $value,
         public ProtectionData $protection,
         public AssetOutsideBusinessHoursEnum $outside_business_hours
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

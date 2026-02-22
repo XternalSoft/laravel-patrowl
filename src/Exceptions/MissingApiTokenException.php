@@ -6,4 +6,4 @@ namespace Xternalsoft\LaravelPatrowl\Exceptions;
 
 use Exception;
 
-class MissingApiTokenException extends Exception {}
+final class MissingApiTokenException extends Exception {}

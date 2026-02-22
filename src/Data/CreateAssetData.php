@@ -6,6 +6,7 @@ namespace Xternalsoft\LaravelPatrowl\Data;
 
 use Xternalsoft\LaravelPatrowl\Enums\ComplexityEnum;
 use Xternalsoft\LaravelPatrowl\Enums\ExposureEnum;
+
 use function config;
 
 final class CreateAssetData
@@ -22,8 +23,7 @@ final class CreateAssetData
         public ?array $owners = null,
         /** @var int[]|null */
         public ?array $suborganizations = null
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

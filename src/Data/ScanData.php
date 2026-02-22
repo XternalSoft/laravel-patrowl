@@ -22,8 +22,7 @@ final class ScanData
         public ?string $updatedAt = null,
         public ?int $todosCount = null,
         public ?int $commentsCount = null
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data

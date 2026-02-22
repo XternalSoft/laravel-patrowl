@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xternalsoft\LaravelPatrowl\Data;
 
 use Xternalsoft\LaravelPatrowl\Enums\ComplexityEnum;
+
 use function config;
 
 final class CreateAssetGroupData
@@ -18,8 +19,7 @@ final class CreateAssetGroupData
         public array $suborganizations = [],
         public bool $is_dynamic = false,
         public ?ComplexityEnum $criticality = null,
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

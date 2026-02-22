@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xternalsoft\LaravelPatrowl;
 
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
-class WorkbenchServiceProvider extends ServiceProvider
+final class WorkbenchServiceProvider extends ServiceProvider
 {
     public function register(): void
     {

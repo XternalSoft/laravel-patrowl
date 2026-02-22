@@ -8,16 +8,16 @@ use Generator;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 use Xternalsoft\LaravelPatrowl\Data\AssetData;
 use Xternalsoft\LaravelPatrowl\Data\AssetGroupData;
 use Xternalsoft\LaravelPatrowl\Data\AssetGroupInListData;
 use Xternalsoft\LaravelPatrowl\Data\AssetInListData;
+use Xternalsoft\LaravelPatrowl\Data\AssetTagData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetGroupData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetTagData;
-use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 use Xternalsoft\LaravelPatrowl\Data\PaginatedResponseData;
-use Xternalsoft\LaravelPatrowl\Data\AssetTagData;
 use Xternalsoft\LaravelPatrowl\Exceptions\MissingApiTokenException;
 
 final class LaravelPatrowl
@@ -54,9 +54,247 @@ final class LaravelPatrowl
     }
 
     /**
+     * Get all assets with auto-pagination.
+     *
+     * @return Generator<AssetInListData>
+     *
+     * @throws MissingApiTokenException
+     *
+     * @see https://developer.patrowl.io/#operation/get-assets
+     */
+    public function getAssets(array $queryParams = []): Generator
+    {
+        return $this->paginate('/assets', AssetInListData::class, $queryParams);
+    }
+
+    /**
+     * Create a new asset.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_create
+     *
      * @throws MissingApiTokenException
      */
-    protected function makeRequest(string $method, string $uri, array $data = []): Response
+    public function createAsset(CreateAssetData $data): AssetData
+    {
+        $asset = $this->makeRequest('post', '/assets', $data->toArray())->json();
+
+        return AssetData::fromApi($asset);
+    }
+
+    /**
+     * Get a specific asset.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_retrieve
+     *
+     * @throws MissingApiTokenException
+     */
+    public function getAsset(int $id): AssetData
+    {
+        $asset = $this->makeRequest('get', "/assets/{$id}")->json();
+
+        return AssetData::fromApi($asset);
+    }
+
+    /**
+     * Update an asset.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_partial_update
+     *
+     * @throws MissingApiTokenException
+     */
+    public function updateAsset(int $id, array $data): AssetData
+    {
+        $asset = $this->makeRequest('patch', "/assets/{$id}", $data)->json();
+
+        return AssetData::fromApi($asset);
+    }
+
+    /**
+     * Delete an asset.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_delete
+     *
+     * @throws MissingApiTokenException
+     */
+    public function deleteAsset(int $id): Response
+    {
+        return $this->makeRequest('delete', "/assets/{$id}");
+    }
+
+    /**
+     * Get all asset groups with auto-pagination.
+     *
+     * @return Generator<AssetGroupInListData>
+     *
+     * @throws MissingApiTokenException
+     *
+     * @see https://developer.patrowl.io/#operation/assets_group_list
+     */
+    public function getAssetGroups(array $queryParams = []): Generator
+    {
+        return $this->paginate('/assets/group/', AssetGroupInListData::class, $queryParams);
+    }
+
+    /**
+     * Create a new asset group.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_group_create
+     *
+     * @throws MissingApiTokenException
+     */
+    public function createAssetGroup(CreateAssetGroupData $data): AssetGroupData
+    {
+        $assetGroup = $this->makeRequest('post', '/assets/group/', $data->toArray())->json();
+
+        return AssetGroupData::fromApi($assetGroup);
+    }
+
+    /**
+     * Get a specific asset group.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_group_retrieve
+     *
+     * @throws MissingApiTokenException
+     */
+    public function getAssetGroup(int $id): AssetGroupData
+    {
+        $assetGroup = $this->makeRequest('get', "/asset-groups/{$id}")->json();
+
+        return AssetGroupData::fromApi($assetGroup);
+    }
+
+    /**
+     * Update an asset group.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_group_partial_update
+     *
+     * @throws MissingApiTokenException
+     */
+    public function updateAssetGroup(int $id, array $data): AssetGroupData
+    {
+        $assetGroup = $this->makeRequest('patch', "/asset-groups/{$id}", $data)->json();
+
+        return AssetGroupData::fromApi($assetGroup);
+    }
+
+    /**
+     * Delete an asset group.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_group_destroy
+     *
+     * @throws MissingApiTokenException
+     */
+    public function deleteAssetGroup(int $id): Response
+    {
+        return $this->makeRequest('delete', "/asset-groups/{$id}");
+    }
+
+    /**
+     * Add assets to an asset group.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_group_add_assets
+     *
+     * @throws MissingApiTokenException
+     */
+    public function addAssetsToGroup(int $groupId, array $assetIds): Response
+    {
+        return $this->makeRequest('post', "/asset-groups/{$groupId}/add-assets", ['asset_ids' => $assetIds]);
+    }
+
+    /**
+     * Remove assets from an asset group.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_group_remove_assets
+     *
+     * @throws MissingApiTokenException
+     */
+    public function removeAssetsFromGroup(int $groupId, array $assetIds): Response
+    {
+        return $this->makeRequest('post', "/asset-groups/{$groupId}/remove-assets", ['asset_ids' => $assetIds]);
+    }
+
+    /**
+     * Create a new asset tag.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_tags_create
+     *
+     * @throws MissingApiTokenException
+     */
+    public function createAssetTag(CreateAssetTagData $data): AssetTagData
+    {
+        $assetTag = $this->makeRequest('post', '/assets/tags/', $data->toArray())->json();
+
+        return AssetTagData::fromApi($assetTag);
+    }
+
+    /**
+     * Get a specific asset tag.
+     *
+     * @see https://developer.patrowl.io/#operation/assets_tags_retrieve
+     *
+     * @throws MissingApiTokenException
+     */
+    public function getAssetTag(int $id): AssetTagData
+    {
+        $assetTag = $this->makeRequest('get', "/assets/tags/{$id}/")->json();
+
+        return AssetTagData::fromApi($assetTag);
+    }
+
+    /**
+     * Sets or removes tags from an asset by providing a list of tag IDs.
+     * Providing an empty array will remove all tags.
+     *
+     * @see https://developer.patrowl.io/#asset_remove_tags
+     *
+     * @throws MissingApiTokenException
+     */
+    public function syncAssetTags(int $assetId, array $tagIds): Response
+    {
+        return $this->makeRequest('post', "/assets/{$assetId}/tags", ['tags' => $tagIds]);
+    }
+
+    /**
+     * Remove a specific AssetTag from an asset.
+     *
+     * @see https://developer.patrowl.io/?shell#assets_remove_tag
+     *
+     * @throws MissingApiTokenException
+     */
+    public function removeAssetTag(int $assetId, int $tagId): Response
+    {
+        return $this->makeRequest('delete', "/assets/{$assetId}/tags/{$tagId}/");
+    }
+
+    /**
+     * Get all asset tags with auto-pagination.
+     *
+     * @return Generator<AssetTagData>
+     *
+     * @throws MissingApiTokenException
+     *
+     * @see https://developer.patrowl.io/#operation/assets_tags_list
+     */
+    public function getAssetTags(array $queryParams = []): Generator
+    {
+        return $this->paginate('/assets/tags/', AssetTagData::class, $queryParams);
+    }
+
+    /**
+     * Add a tag to an asset.
+     *
+     *
+     * @throws MissingApiTokenException
+     */
+    public function addTagToAsset(int $assetId, AddTagToAssetData $data): Response
+    {
+        return $this->makeRequest('post', "/assets/{$assetId}/tags/add", $data->toArray());
+    }
+
+    /**
+     * @throws MissingApiTokenException
+     */
+    private function makeRequest(string $method, string $uri, array $data = []): Response
     {
         if (! $this->apiToken) {
             throw new MissingApiTokenException('Patrowl API token is not configured.');
@@ -78,7 +316,7 @@ final class LaravelPatrowl
 
     private function addDefaultOrganizationId(array $queryParams): array
     {
-        if (!isset($queryParams['org_id']) && !isset($queryParams['organization']) && $this->defaultOrganizationId) {
+        if (! isset($queryParams['org_id']) && ! isset($queryParams['organization']) && $this->defaultOrganizationId) {
             $queryParams['org_id'] = $this->defaultOrganizationId;
         }
 
@@ -96,244 +334,23 @@ final class LaravelPatrowl
         return isset($query['page']) ? (int) $query['page'] : null;
     }
 
-        private function paginate(string $endpoint, string $dtoClass, array $queryParams = []): Generator
-        {
-            $queryParams = $this->addDefaultOrganizationId($queryParams);
-            $queryParams['limit'] = $queryParams['limit'] ?? $this->limit;
-            $page = 1;
-    
-            while ($page !== null) {
-                $queryParams['page'] = $page;
-                
-                /** @var PaginatedResponseData $response */
-                $response = PaginatedResponseData::fromApi($this->makeRequest('get', $endpoint, $queryParams)->json(), $dtoClass);
-    
-                foreach ($response->results as $result) {
-                    yield $result;
-                }
-    
-                $page = $this->getNextPageNumber($response->next);
+    private function paginate(string $endpoint, string $dtoClass, array $queryParams = []): Generator
+    {
+        $queryParams = $this->addDefaultOrganizationId($queryParams);
+        $queryParams['limit'] = $queryParams['limit'] ?? $this->limit;
+        $page = 1;
+
+        while ($page !== null) {
+            $queryParams['page'] = $page;
+
+            /** @var PaginatedResponseData $response */
+            $response = PaginatedResponseData::fromApi($this->makeRequest('get', $endpoint, $queryParams)->json(), $dtoClass);
+
+            foreach ($response->results as $result) {
+                yield $result;
             }
+
+            $page = $this->getNextPageNumber($response->next);
         }
-    /**
-     * Get all assets with auto-pagination.
-     *
-     * @return Generator<AssetInListData>
-     *
-     * @throws MissingApiTokenException
-     * @see https://developer.patrowl.io/#operation/get-assets
-     */
-    public function getAssets(array $queryParams = []): Generator
-    {
-        return $this->paginate('/assets', AssetInListData::class, $queryParams);
-    }
-
-    /**
-     * Create a new asset.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_create
-     * @throws MissingApiTokenException
-     */
-    public function createAsset(CreateAssetData $data): AssetData
-    {
-        $asset = $this->makeRequest('post', '/assets', $data->toArray())->json();
-
-        return AssetData::fromApi($asset);
-    }
-
-    /**
-     * Get a specific asset.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_retrieve
-     * @throws MissingApiTokenException
-     */
-    public function getAsset(int $id): AssetData
-    {
-        $asset = $this->makeRequest('get', "/assets/{$id}")->json();
-
-        return AssetData::fromApi($asset);
-    }
-
-    /**
-     * Update an asset.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_partial_update
-     * @throws MissingApiTokenException
-     */
-    public function updateAsset(int $id, array $data): AssetData
-    {
-        $asset = $this->makeRequest('patch', "/assets/{$id}", $data)->json();
-
-        return AssetData::fromApi($asset);
-    }
-
-    /**
-     * Delete an asset.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_delete
-     * @throws MissingApiTokenException
-     */
-    public function deleteAsset(int $id): Response
-    {
-        return $this->makeRequest('delete', "/assets/{$id}");
-    }
-
-    /**
-     * Get all asset groups with auto-pagination.
-     *
-     * @return Generator<AssetGroupInListData>
-     *
-     * @throws MissingApiTokenException
-     * @see https://developer.patrowl.io/#operation/assets_group_list
-     */
-    public function getAssetGroups(array $queryParams = []): Generator
-    {
-        return $this->paginate('/assets/group/', AssetGroupInListData::class, $queryParams);
-    }
-
-    /**
-     * Create a new asset group.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_group_create
-     * @throws MissingApiTokenException
-     */
-    public function createAssetGroup(CreateAssetGroupData $data): AssetGroupData
-    {
-        $assetGroup = $this->makeRequest('post', '/assets/group/', $data->toArray())->json();
-
-        return AssetGroupData::fromApi($assetGroup);
-    }
-
-    /**
-     * Get a specific asset group.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_group_retrieve
-     * @throws MissingApiTokenException
-     */
-    public function getAssetGroup(int $id): AssetGroupData
-    {
-        $assetGroup = $this->makeRequest('get', "/asset-groups/{$id}")->json();
-
-        return AssetGroupData::fromApi($assetGroup);
-    }
-
-    /**
-     * Update an asset group.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_group_partial_update
-     * @throws MissingApiTokenException
-     */
-    public function updateAssetGroup(int $id, array $data): AssetGroupData
-    {
-        $assetGroup = $this->makeRequest('patch', "/asset-groups/{$id}", $data)->json();
-
-        return AssetGroupData::fromApi($assetGroup);
-    }
-
-    /**
-     * Delete an asset group.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_group_destroy
-     * @throws MissingApiTokenException
-     */
-    public function deleteAssetGroup(int $id): Response
-    {
-        return $this->makeRequest('delete', "/asset-groups/{$id}");
-    }
-
-    /**
-     * Add assets to an asset group.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_group_add_assets
-     * @throws MissingApiTokenException
-     */
-    public function addAssetsToGroup(int $groupId, array $assetIds): Response
-    {
-        return $this->makeRequest('post', "/asset-groups/{$groupId}/add-assets", ['asset_ids' => $assetIds]);
-    }
-
-    /**
-     * Remove assets from an asset group.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_group_remove_assets
-     * @throws MissingApiTokenException
-     */
-    public function removeAssetsFromGroup(int $groupId, array $assetIds): Response
-    {
-        return $this->makeRequest('post', "/asset-groups/{$groupId}/remove-assets", ['asset_ids' => $assetIds]);
-    }
-
-    /**
-     * Create a new asset tag.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_tags_create
-     * @throws MissingApiTokenException
-     */
-    public function createAssetTag(CreateAssetTagData $data): AssetTagData
-    {
-        $assetTag = $this->makeRequest('post', '/assets/tags/', $data->toArray())->json();
-
-        return AssetTagData::fromApi($assetTag);
-    }
-
-    /**
-     * Get a specific asset tag.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_tags_retrieve
-     * @throws MissingApiTokenException
-     */
-    public function getAssetTag(int $id): AssetTagData
-    {
-        $assetTag = $this->makeRequest('get', "/assets/tags/{$id}/")->json();
-
-        return AssetTagData::fromApi($assetTag);
-    }
-
-    /**
-     * Sets or removes tags from an asset by providing a list of tag IDs.
-     * Providing an empty array will remove all tags.
-     *
-     * @see https://developer.patrowl.io/#asset_remove_tags
-     * @throws MissingApiTokenException
-     */
-    public function syncAssetTags(int $assetId, array $tagIds): Response
-    {
-        return $this->makeRequest('post', "/assets/{$assetId}/tags", ['tags' => $tagIds]);
-    }
-
-    /**
-     * Remove a specific AssetTag from an asset.
-     *
-     * @see https://developer.patrowl.io/?shell#assets_remove_tag
-     * @throws MissingApiTokenException
-     */
-    public function removeAssetTag(int $assetId, int $tagId): Response
-    {
-        return $this->makeRequest('delete', "/assets/{$assetId}/tags/{$tagId}/");
-    }
-
-    /**
-     * Get all asset tags with auto-pagination.
-     *
-     * @return Generator<AssetTagData>
-     *
-     * @throws MissingApiTokenException
-     * @see https://developer.patrowl.io/#operation/assets_tags_list
-     */
-    public function getAssetTags(array $queryParams = []): Generator
-    {
-        return $this->paginate('/assets/tags/', AssetTagData::class, $queryParams);
-    }
-
-    /**
-     * Add a tag to an asset.
-     *
-     * @param  AddTagToAssetData  $data
-     *
-     * @throws MissingApiTokenException
-     */
-    public function addTagToAsset(int $assetId, AddTagToAssetData $data): Response
-    {
-        return $this->makeRequest('post', "/assets/{$assetId}/tags/add", $data->toArray());
     }
 }

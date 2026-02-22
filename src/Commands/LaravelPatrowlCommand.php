@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xternalsoft\LaravelPatrowl\Commands;
 
 use Illuminate\Console\Command;
 
-class LaravelPatrowlCommand extends Command
+final class LaravelPatrowlCommand extends Command
 {
     public $signature = 'laravel-patrowl';
 

@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 use Xternalsoft\LaravelPatrowl\Data\AssetData;
 use Xternalsoft\LaravelPatrowl\Data\AssetGroupLiteData;
 use Xternalsoft\LaravelPatrowl\Data\AssetInListData;
+use Xternalsoft\LaravelPatrowl\Data\AssetOwnerData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
 use Xternalsoft\LaravelPatrowl\Data\DomainLiteData;
-use Xternalsoft\LaravelPatrowl\Data\AssetOwnerData;
-use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
-use Illuminate\Http\Client\Response;
 
 it('can sync tags for an asset', function () {
     config()->set('patrowl.api_token', 'fake-token');
@@ -21,9 +23,9 @@ it('can sync tags for an asset', function () {
     $response = LaravelPatrowl::syncAssetTags(1, [1, 2]);
 
     Http::assertSent(function ($request) {
-        return $request->url() == 'https://dashboard.cloud.patrowl.io/api/auth/assets/1/tags' &&
-               $request->method() == 'POST' &&
-               $request->data() == ['tags' => [1, 2]];
+        return $request->url() === 'https://dashboard.cloud.patrowl.io/api/auth/assets/1/tags' &&
+               $request->method() === 'POST' &&
+               $request->data() === ['tags' => [1, 2]];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -40,8 +42,8 @@ it('can remove a specific asset tag', function () {
     $response = LaravelPatrowl::removeAssetTag(1, 1);
 
     Http::assertSent(function ($request) {
-        return $request->url() == 'https://dashboard.cloud.patrowl.io/api/auth/assets/1/tags/1/' &&
-               $request->method() == 'DELETE';
+        return $request->url() === 'https://dashboard.cloud.patrowl.io/api/auth/assets/1/tags/1/' &&
+               $request->method() === 'DELETE';
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -146,21 +148,21 @@ it('can get an asset', function () {
                 [
                     'id' => 1,
                     'email' => 'test@example.com',
-                ]
+                ],
             ],
             'groups' => [
                 [
                     'id' => 1,
                     'title' => 'Group 1',
                     'description' => 'Description 1',
-                ]
+                ],
             ],
             'www_related_domain' => [ // This is now a single object, not an array
                 'id' => 1,
                 'value' => 'sub.asset.com',
                 'protection' => ['status' => 'unprotected', 'availability' => 'available'],
                 'outside_business_hours' => 0,
-            ]
+            ],
         ]),
     ]);
 
@@ -191,7 +193,7 @@ it('can get assets', function () {
                 [
                     'id' => 1,
                     'value' => 'asset.com',
-                ]
+                ],
             ],
         ], 200),
     ]);
@@ -258,9 +260,9 @@ it('can add a tag to an asset', function () {
     $response = LaravelPatrowl::addTagToAsset(1, $data);
 
     Http::assertSent(function ($request) {
-        return $request->url() == 'https://dashboard.cloud.patrowl.io/api/auth/assets/1/tags/add' &&
-               $request->method() == 'POST' &&
-               $request->data() == ['value' => 'my-tag', 'organization' => 1];
+        return $request->url() === 'https://dashboard.cloud.patrowl.io/api/auth/assets/1/tags/add' &&
+               $request->method() === 'POST' &&
+               $request->data() === ['value' => 'my-tag', 'organization' => 1];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -282,9 +284,9 @@ it('can add a tag to an asset with default organization id', function () {
     $response = LaravelPatrowl::addTagToAsset(1, $data);
 
     Http::assertSent(function ($request) {
-        return $request->url() == 'https://dashboard.cloud.patrowl.io/api/auth/assets/1/tags/add' &&
-               $request->method() == 'POST' &&
-               $request->data() == ['value' => 'my-tag', 'organization' => 456];
+        return $request->url() === 'https://dashboard.cloud.patrowl.io/api/auth/assets/1/tags/add' &&
+               $request->method() === 'POST' &&
+               $request->data() === ['value' => 'my-tag', 'organization' => 456];
     });
 
     expect($response)->toBeInstanceOf(Response::class);

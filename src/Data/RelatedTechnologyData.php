@@ -12,8 +12,7 @@ final class RelatedTechnologyData
         public ?string $vendor = null,
         public ?string $version = null,
         public ?bool $impactedByCve = null
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
