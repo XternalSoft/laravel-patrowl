@@ -37,7 +37,7 @@ final class LaravelPatrowl
         $this->apiToken = config('patrowl.api_token');
         $this->baseUrl = config('patrowl.base_url');
         $this->defaultOrganizationId = config('patrowl.default_organization_id') ? (int) config('patrowl.default_organization_id') : null;
-        $this->limit = config('patrowl.limit', 100);
+        $this->limit = (int) config('patrowl.limit', 100);
 
         $this->client = Http::withHeaders([
             'Authorization' => 'Token '.$this->apiToken,
@@ -380,10 +380,8 @@ final class LaravelPatrowl
 
         while ($page !== null) {
             $queryParams['page'] = $page;
-
             /** @var PaginatedResponseData $response */
             $response = PaginatedResponseData::fromApi($this->makeRequest('get', $endpoint, $queryParams)->json(), $dtoClass);
-
             foreach ($response->results as $result) {
                 yield $result;
             }
