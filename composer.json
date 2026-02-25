@@ -2,15 +2,14 @@
     "name": "xternalsoft/laravel-patrowl",
     "description": "A clean, fluent, and developer-friendly PHP wrapper for the Patrowl API",
     "keywords": [
-        "xternalsoft",
         "laravel",
-        "laravel-patrowl"
+        "patrowl"
     ],
     "homepage": "https://github.com/xternalsoft/laravel-patrowl",
     "license": "MIT",
     "authors": [
         {
-            "name": "Parrot",
+            "name": "Grégory Parrot",
             "email": "gparrot@xternalsoft.com",
             "role": "Developer"
         }
@@ -18,7 +17,7 @@
     "require": {
         "php": "^8.4",
         "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^11.0||^12.0"
+        "illuminate/contracts": "^11.0||^12.0||^13.0"
     },
     "require-dev": {
         "larastan/larastan": "^3.0",
