@@ -10,7 +10,7 @@ use Xternalsoft\LaravelPatrowl\Enums\ExposureEnum;
 use Xternalsoft\LaravelPatrowl\Enums\LivenessEnum;
 use Xternalsoft\LaravelPatrowl\Enums\TypeEf5Enum;
 
-final class AssetData
+class AssetData
 {
     public function __construct(
         public int $id,
@@ -26,19 +26,19 @@ final class AssetData
         public string $created_by,
         public ?string $created_at,
         public ?string $updated_at,
-        /** @var array<int> */
+        /** @var array<int, mixed> */
         public array $tags,
         public int $score_level,
-        /** @var array<RelatedTechnologyData> */
+        /** @var array<RelatedTechnologyData>|null */
         public ?array $technologies,
-        /** @var array<AssetOwnerData> */
+        /** @var array<AssetOwnerData>|null */
         public ?array $asset_owners,
         /** @var array<int> */
         public array $owners,
-        /** @var array<AssetGroupLiteData> */
+        /** @var array<AssetGroupLiteData>|null */
         public ?array $groups,
         public ?int $organization,
-        /** @var array<AssetTagData> */
+        /** @var array<AssetTagData>|null */
         public ?array $asset_tags,
         public ?string $provider,
         /** @var array<int> */
@@ -47,7 +47,7 @@ final class AssetData
         public LivenessEnum $liveness,
         public ?DomainLiteData $www_related_domain,
         public bool $has_webservers,
-        /** @var array<array> */
+        /** @var array<int, array<string, mixed>> */
         public array $suborganizations_display,
         public mixed $ip_state
     ) {}
@@ -90,6 +90,9 @@ final class AssetData
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

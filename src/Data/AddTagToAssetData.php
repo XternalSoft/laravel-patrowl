@@ -13,11 +13,14 @@ final class AddTagToAssetData
         public ?int $organization = null
     ) {}
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         $data = [
             'value' => $this->value,
-            'organization' => $this->organization ?? config('patrowl.default_organization_id'),
+            'organization' => $this->organization,
         ];
 
         return array_filter($data, fn ($value) => $value !== null);

@@ -25,6 +25,9 @@ final class CreateAssetData
         public ?array $suborganizations = null
     ) {}
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         $data = [

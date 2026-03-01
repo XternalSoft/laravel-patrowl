@@ -13,7 +13,9 @@ final class RawFindingData
         public string $severity = 'medium',
         public string $status = 'new',
         public ?int $scanId = null,
+        /** @var array<string, mixed>|null */
         public ?array $details = null,
+        /** @var array<int, mixed> */
         public array $attachments = [],
         public ?string $createdAt = null,
         public ?string $updatedAt = null
@@ -38,6 +40,9 @@ final class RawFindingData
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

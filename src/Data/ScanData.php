@@ -11,7 +11,9 @@ final class ScanData
         public ?int $engineId = null,
         public ?string $startedAt = null,
         public ?string $endedAt = null,
+        /** @var array<int, mixed> */
         public array $targetAssets = [],
+        /** @var array<int, mixed> */
         public array $targetAssetgroups = [],
         public ?int $id = null,
         public ?string $status = null,
@@ -48,6 +50,9 @@ final class ScanData
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

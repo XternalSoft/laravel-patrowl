@@ -13,14 +13,21 @@ final class FindingData
         public string $status = 'in_check',
         public string $severity = 'medium',
         public string $type = 'vuln',
+        /** @var array<int, mixed> */
         public array $tags = [],
+        /** @var array<string, mixed>|null */
         public ?array $rawFinding = null,
+        /** @var array<int, mixed> */
         public array $assignees = [],
         public ?string $vulnId = null,
         public ?string $vulnType = null,
+        /** @var array<int, mixed> */
         public array $vulnRefs = [],
+        /** @var array<int, mixed> */
         public array $attachments = [],
+        /** @var array<int, mixed> */
         public array $assets = [],
+        /** @var array<int, mixed> */
         public array $assetgroups = [],
         public ?string $createdAt = null,
         public ?string $updatedAt = null,
@@ -56,6 +63,9 @@ final class FindingData
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

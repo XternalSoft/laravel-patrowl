@@ -2,20 +2,27 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Http;
+use Saloon\Http\Faking\MockClient;
+use Saloon\Http\Faking\MockResponse;
 use Xternalsoft\LaravelPatrowl\Data\AssetTagData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetTagData;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
+use Xternalsoft\LaravelPatrowl\Requests\AssetTags\CreateAssetTagRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetAssetTagRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetAssetTagsRequest;
 
 it('can create an asset tag', function () {
     config()->set('patrowl.api_token', 'fake-token');
-    Http::fake([
-        '*/assets/tags/' => Http::response([
+
+    $mockClient = new MockClient([
+        CreateAssetTagRequest::class => MockResponse::make([
             'id' => 1,
             'value' => 'my-tag',
             'organization' => 1,
         ], 201),
     ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
 
     $data = new CreateAssetTagData(
         value: 'my-tag',
@@ -23,10 +30,10 @@ it('can create an asset tag', function () {
         id: 0
     );
 
-    $assetTag = LaravelPatrowl::createAssetTag($data);
+    $assetTag = LaravelPatrowl::assetTags()->create($data);
 
-    Http::assertSent(function ($request) {
-        return $request['id'] === 0;
+    $mockClient->assertSent(function (CreateAssetTagRequest $request) {
+        return $request->body()->all()['id'] === 0;
     });
 
     expect($assetTag)
@@ -40,37 +47,42 @@ it('can create an asset tag with default organization id', function () {
     config()->set('patrowl.api_token', 'fake-token');
     config()->set('patrowl.default_organization_id', 456);
 
-    Http::fake([
-        '*/assets/tags/' => Http::response([
+    $mockClient = new MockClient([
+        CreateAssetTagRequest::class => MockResponse::make([
             'id' => 1,
             'value' => 'my-tag',
             'organization' => 456,
         ], 201),
     ]);
 
+    LaravelPatrowl::withMockClient($mockClient);
+
     $data = new CreateAssetTagData(
         value: 'my-tag',
         id: 0
     );
 
-    LaravelPatrowl::createAssetTag($data);
+    LaravelPatrowl::assetTags()->create($data);
 
-    Http::assertSent(function ($request) {
-        return $request['organization'] === 456 && $request['id'] === 0;
+    $mockClient->assertSent(function (CreateAssetTagRequest $request) {
+        return $request->body()->all()['organization'] === 456 && $request->body()->all()['id'] === 0;
     });
 });
 
 it('can get an asset tag', function () {
     config()->set('patrowl.api_token', 'fake-token');
-    Http::fake([
-        '*/assets/tags/1/' => Http::response([
+
+    $mockClient = new MockClient([
+        GetAssetTagRequest::class => MockResponse::make([
             'id' => 1,
             'value' => 'my-tag',
             'organization' => 1,
         ]),
     ]);
 
-    $assetTag = LaravelPatrowl::getAssetTag(1);
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $assetTag = LaravelPatrowl::assetTags()->get(1);
 
     expect($assetTag)
         ->toBeInstanceOf(AssetTagData::class)
@@ -82,8 +94,8 @@ it('can get an asset tag', function () {
 it('can get asset tags', function () {
     config()->set('patrowl.api_token', 'fake-token');
 
-    Http::fake([
-        '*/assets/tags/*' => Http::response([
+    $mockClient = new MockClient([
+        GetAssetTagsRequest::class => MockResponse::make([
             'count' => 1,
             'next' => null,
             'previous' => null,
@@ -97,7 +109,9 @@ it('can get asset tags', function () {
         ], 200),
     ]);
 
-    $assetTags = iterator_to_array(LaravelPatrowl::getAssetTags());
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $assetTags = iterator_to_array(LaravelPatrowl::assetTags()->all()->items());
 
     expect($assetTags)->toHaveCount(1);
     expect($assetTags[0])
@@ -111,8 +125,8 @@ it('can get asset tags with default organization id', function () {
     config()->set('patrowl.api_token', 'fake-token');
     config()->set('patrowl.default_organization_id', 456);
 
-    Http::fake([
-        '*/assets/tags/*' => Http::response([
+    $mockClient = new MockClient([
+        GetAssetTagsRequest::class => MockResponse::make([
             'count' => 0,
             'next' => null,
             'previous' => null,
@@ -120,9 +134,11 @@ it('can get asset tags with default organization id', function () {
         ], 200),
     ]);
 
-    iterator_to_array(LaravelPatrowl::getAssetTags());
+    LaravelPatrowl::withMockClient($mockClient);
 
-    Http::assertSent(function ($request) {
-        return $request->url() === 'https://dashboard.cloud.patrowl.io/api/auth/assets/tags/?org_id=456&limit=100&page=1';
+    iterator_to_array(LaravelPatrowl::assetTags()->all()->items());
+
+    $mockClient->assertSent(function (GetAssetTagsRequest $request) {
+        return $request->query()->all() === ['org_id' => 456, 'limit' => 100, 'page' => 1];
     });
 });

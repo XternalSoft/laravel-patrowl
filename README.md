@@ -5,7 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/xternalsoft/laravel-patrowl/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/xternalsoft/laravel-patrowl/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/xternalsoft/laravel-patrowl.svg?style=flat-square)](https://packagist.org/packages/xternalsoft/laravel-patrowl)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+A clean, fluent, and developer-friendly PHP wrapper for the Patrowl API. This package allows you to easily interact with assets, asset groups, and tags within the Patrowl ecosystem from your Laravel application.
 
 ## Support us
 
@@ -40,6 +40,11 @@ This is the contents of the published config file:
 
 ```php
 return [
+    'api_token' => env('PATROWL_API_TOKEN'),
+    'base_url' => env('PATROWL_API_BASE_URL', 'https://dashboard.cloud.patrowl.io/api/auth'),
+    'timeout' => 30,
+    'default_organization_id' => env('PATROWL_DEFAULT_ORGANIZATION_ID'),
+    'limit' => env('PATROWL_PAGINATION_LIMIT', 100),
 ];
 ```
 
@@ -51,9 +56,115 @@ php artisan vendor:publish --tag="laravel-patrowl-views"
 
 ## Usage
 
+### Configuration
+
+Add your Patrowl API token and base URL to your `.env` file:
+
+```env
+PATROWL_API_TOKEN=your-api-token
+PATROWL_API_BASE_URL=https://dashboard.cloud.patrowl.io/api/auth
+PATROWL_DEFAULT_ORGANIZATION_ID=1
+```
+
+### Basic Usage
+
+You can use the `LaravelPatrowl` facade to interact with the API:
+
 ```php
-$laravelPatrowl = new Xternalsoft\LaravelPatrowl();
-echo $laravelPatrowl->echoPhrase('Hello, Xternalsoft!');
+use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
+
+// Get all assets
+$assets = LaravelPatrowl::assets()->all();
+
+foreach ($assets as $asset) {
+    echo $asset->value;
+}
+```
+
+### Managing Assets
+
+#### Create an Asset
+
+```php
+use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
+
+$data = new CreateAssetData(
+    value: 'example.com',
+    description: 'My new asset',
+    organization: 1
+);
+
+$asset = LaravelPatrowl::assets()->create($data);
+```
+
+#### Add a Tag to an Asset
+
+```php
+use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
+
+$data = new AddTagToAssetData(
+    value: 'production',
+    organization: 1
+);
+
+$response = LaravelPatrowl::assets()->addTag($assetId, $data);
+
+if ($response->successful()) {
+    // Tag added successfully
+}
+```
+
+#### Remove a Tag from an Asset
+
+```php
+$response = LaravelPatrowl::assets()->removeTag($assetId, $tagId);
+```
+
+### Asset Groups
+
+#### Create an Asset Group
+
+```php
+use Xternalsoft\LaravelPatrowl\Data\CreateAssetGroupData;
+
+$data = new CreateAssetGroupData(
+    title: 'My Production Assets',
+    description: 'Assets in production environment',
+    organization: 1,
+    assets: [123, 456] // List of asset IDs to add after creation
+);
+
+$group = LaravelPatrowl::assetGroups()->create($data);
+```
+
+#### List and Get Asset Groups
+
+```php
+// List all asset groups
+$groups = LaravelPatrowl::assetGroups()->all();
+
+// Get a specific group
+$group = LaravelPatrowl::assetGroups()->get($groupId);
+```
+
+#### Add a Tag to an Asset Group
+
+```php
+use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
+
+$data = new AddTagToAssetData(
+    value: 'critical-infrastructure',
+    organization: 1
+);
+
+$response = LaravelPatrowl::assetGroups()->addTag($groupId, $data);
+```
+
+### Asset Tags
+
+```php
+// List all available tags
+$tags = LaravelPatrowl::assetTags()->all();
 ```
 
 ## Testing

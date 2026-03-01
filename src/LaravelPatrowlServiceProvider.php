@@ -15,23 +15,23 @@ final class LaravelPatrowlServiceProvider extends PackageServiceProvider
         parent::register();
 
         $this->app->singleton(LaravelPatrowl::class, function () {
-            return new LaravelPatrowl;
+            return new LaravelPatrowl(
+                apiToken: config('patrowl.api_token'),
+                baseUrl: config('patrowl.base_url'),
+                defaultOrganizationId: config('patrowl.default_organization_id') ? (int) config('patrowl.default_organization_id') : null,
+                limit: (int) config('patrowl.limit', 100),
+                timeout: (int) config('patrowl.timeout', 30)
+            );
         });
     }
 
     public function configurePackage(Package $package): void
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
         $package
             ->name('laravel-patrowl')
             ->hasConfigFile()
             ->hasInstallCommand(function (InstallCommand $command) {
-                $command
-                    ->publishConfigFile();
+                $command->publishConfigFile();
             });
     }
 }

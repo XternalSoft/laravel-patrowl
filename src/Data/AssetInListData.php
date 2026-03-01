@@ -29,9 +29,11 @@ final class AssetInListData
         public ?int $activevulns = null,
         public ?string $createdAt = null,
         public ?string $updatedAt = null,
+        /** @var array<int, mixed>|null */
         public ?array $assetTags = null,
         public ?int $organization = null,
         public ?float $scoreLevel = null,
+        /** @var array<int, mixed>|null */
         public ?array $assetOwners = null,
         public ?LivenessEnum $liveness = null,
         public ?AssetOutsideBusinessHoursEnum $outsideBusinessHours = null,
@@ -71,6 +73,9 @@ final class AssetInListData
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

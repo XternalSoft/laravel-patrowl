@@ -15,7 +15,9 @@ final class AssetGroupInListData
         public ?int $id = null,
         public ?string $description = null,
         public string $scope = 'private',
+        /** @var array<int, mixed> */
         public array $tags = [],
+        /** @var array<int, mixed> */
         public array $owners = [],
         public ?int $assetsCount = null,
         public ?string $createdAt = null,
@@ -44,6 +46,9 @@ final class AssetGroupInListData
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

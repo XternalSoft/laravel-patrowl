@@ -22,6 +22,9 @@ final class ProtectionData
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

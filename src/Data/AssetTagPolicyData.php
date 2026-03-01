@@ -8,10 +8,12 @@ final class AssetTagPolicyData
 {
     public function __construct(
         public string $name,
+        /** @var array<int, mixed> */
         public array $tags,
         public ?int $id = null,
         public ?string $description = null,
         public string $scope = 'private',
+        /** @var array<int, mixed> */
         public array $filters = [],
         public bool $isActive = true,
         public ?string $createdAt = null,
@@ -36,6 +38,9 @@ final class AssetTagPolicyData
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [
