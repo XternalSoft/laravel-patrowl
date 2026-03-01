@@ -30,6 +30,11 @@ final class CreateAssetTagRequest extends Request implements HasBody
         return '/assets/tags/';
     }
 
+    public function createDtoFromResponse(Response $response): AssetTagData
+    {
+        return AssetTagData::fromApi($response->json());
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -42,10 +47,5 @@ final class CreateAssetTagRequest extends Request implements HasBody
         }
 
         return $body;
-    }
-
-    public function createDtoFromResponse(Response $response): AssetTagData
-    {
-        return AssetTagData::fromApi($response->json());
     }
 }

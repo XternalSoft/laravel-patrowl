@@ -30,6 +30,11 @@ final class CreateAssetRequest extends Request implements HasBody
         return '/assets/';
     }
 
+    public function createDtoFromResponse(Response $response): AssetData
+    {
+        return AssetData::fromApi($response->json());
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -42,10 +47,5 @@ final class CreateAssetRequest extends Request implements HasBody
         }
 
         return $body;
-    }
-
-    public function createDtoFromResponse(Response $response): AssetData
-    {
-        return AssetData::fromApi($response->json());
     }
 }

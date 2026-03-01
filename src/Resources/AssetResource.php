@@ -8,7 +8,6 @@ use Saloon\Http\Response;
 use Saloon\PaginationPlugin\Paginator;
 use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 use Xternalsoft\LaravelPatrowl\Data\AssetData;
-use Xternalsoft\LaravelPatrowl\Data\AssetInListData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
 use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\AddTagToAssetRequest;
@@ -30,8 +29,7 @@ final readonly class AssetResource
     /**
      * Get all assets with auto-pagination.
      *
-     * @param array<string, mixed> $queryParams
-     * @return Paginator
+     * @param  array<string, mixed>  $queryParams
      *
      * @see https://developer.patrowl.io/#operation/get-assets
      */
@@ -67,7 +65,8 @@ final readonly class AssetResource
     /**
      * Update an asset.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
+     *
      * @see https://developer.patrowl.io/#operation/assets_partial_update
      */
     public function update(int $id, array $data): AssetData
@@ -88,7 +87,8 @@ final readonly class AssetResource
     /**
      * Update several assets.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
+     *
      * @see https://developer.patrowl.io/#operation/assets_bulk_partial_update
      */
     public function bulkUpdate(array $data): Response
@@ -99,7 +99,8 @@ final readonly class AssetResource
     /**
      * Replace an asset.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
+     *
      * @see https://developer.patrowl.io/#operation/assets_update
      */
     public function replace(int $id, array $data): AssetData
@@ -121,7 +122,8 @@ final readonly class AssetResource
      * Sets or removes tags from an asset by providing a list of tag IDs.
      * Providing an empty array will remove all tags.
      *
-     * @param array<int, int> $tagIds
+     * @param  array<int, int>  $tagIds
+     *
      * @see https://developer.patrowl.io/#asset_remove_tags
      */
     public function syncTags(int $assetId, array $tagIds): Response

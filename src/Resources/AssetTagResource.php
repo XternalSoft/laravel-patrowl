@@ -19,8 +19,7 @@ final readonly class AssetTagResource
     /**
      * Get all asset tags with auto-pagination.
      *
-     * @param array<string, mixed> $queryParams
-     * @return Paginator
+     * @param  array<string, mixed>  $queryParams
      *
      * @see https://developer.patrowl.io/#operation/assets_tags_list
      */

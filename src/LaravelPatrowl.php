@@ -8,7 +8,6 @@ use Saloon\Http\Auth\TokenAuthenticator;
 use Saloon\Http\Connector;
 use Saloon\Http\Request;
 use Saloon\PaginationPlugin\Contracts\HasPagination;
-use Saloon\PaginationPlugin\Contracts\Paginatable;
 use Saloon\PaginationPlugin\Paginator;
 use Saloon\Traits\HasMockClient;
 use Saloon\Traits\Plugins\AcceptsJson;
@@ -30,28 +29,13 @@ final class LaravelPatrowl extends Connector implements HasPagination
         private readonly int $timeout = 30
     ) {
         if (! $this->apiToken) {
-            throw new \Xternalsoft\LaravelPatrowl\Exceptions\MissingApiTokenException('Patrowl API token is not configured.');
+            throw new Exceptions\MissingApiTokenException('Patrowl API token is not configured.');
         }
     }
 
     public function resolveBaseUrl(): string
     {
         return $this->baseUrl;
-    }
-
-    protected function defaultAuth(): TokenAuthenticator
-    {
-        return new TokenAuthenticator($this->apiToken,prefix: 'Token');
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function defaultConfig(): array
-    {
-        return [
-            'timeout' => $this->timeout,
-        ];
     }
 
     public function paginate(Request $request): Paginator
@@ -82,5 +66,20 @@ final class LaravelPatrowl extends Connector implements HasPagination
     public function getLimit(): int
     {
         return $this->limit;
+    }
+
+    protected function defaultAuth(): TokenAuthenticator
+    {
+        return new TokenAuthenticator($this->apiToken, prefix: 'Token');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function defaultConfig(): array
+    {
+        return [
+            'timeout' => $this->timeout,
+        ];
     }
 }

@@ -8,7 +8,6 @@ use Saloon\Http\Response;
 use Saloon\PaginationPlugin\Paginator;
 use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 use Xternalsoft\LaravelPatrowl\Data\AssetGroupData;
-use Xternalsoft\LaravelPatrowl\Data\AssetGroupInListData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetGroupData;
 use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
 use Xternalsoft\LaravelPatrowl\Requests\AssetGroups\AddAssetsToGroupRequest;
@@ -27,8 +26,7 @@ final readonly class AssetGroupResource
     /**
      * Get all asset groups with auto-pagination.
      *
-     * @param array<string, mixed> $queryParams
-     * @return Paginator
+     * @param  array<string, mixed>  $queryParams
      *
      * @see https://developer.patrowl.io/#operation/assets_group_list
      */
@@ -72,7 +70,8 @@ final readonly class AssetGroupResource
     /**
      * Update an asset group.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
+     *
      * @see https://developer.patrowl.io/#operation/assets_group_partial_update
      */
     public function update(int $id, array $data): AssetGroupData
@@ -93,7 +92,8 @@ final readonly class AssetGroupResource
     /**
      * Add assets to an asset group.
      *
-     * @param array<int, int> $assetIds
+     * @param  array<int, int>  $assetIds
+     *
      * @see https://developer.patrowl.io/#operation/assets_group_add_assets
      */
     public function addAssets(int $groupId, array $assetIds): Response
@@ -104,7 +104,8 @@ final readonly class AssetGroupResource
     /**
      * Remove assets from an asset group.
      *
-     * @param array<int, int> $assetIds
+     * @param  array<int, int>  $assetIds
+     *
      * @see https://developer.patrowl.io/#operation/assets_group_remove_assets
      */
     public function removeAssets(int $groupId, array $assetIds): Response

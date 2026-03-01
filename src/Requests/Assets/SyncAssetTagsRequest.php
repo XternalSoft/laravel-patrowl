@@ -16,7 +16,7 @@ final class SyncAssetTagsRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     /**
-     * @param array<int, int> $tagIds
+     * @param  array<int, int>  $tagIds
      */
     public function __construct(protected int $assetId, protected array $tagIds) {}
 

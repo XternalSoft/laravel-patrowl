@@ -16,7 +16,7 @@ final class AddAssetsToGroupRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     /**
-     * @param array<int, int> $assetIds
+     * @param  array<int, int>  $assetIds
      */
     public function __construct(protected int $groupId, protected array $assetIds) {}
 

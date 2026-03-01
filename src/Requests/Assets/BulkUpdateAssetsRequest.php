@@ -16,7 +16,7 @@ final class BulkUpdateAssetsRequest extends Request implements HasBody
     protected Method $method = Method::PATCH;
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function __construct(protected array $data) {}
 

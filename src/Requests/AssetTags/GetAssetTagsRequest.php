@@ -11,12 +11,12 @@ use Saloon\PaginationPlugin\Contracts\MapPaginatedResponseItems;
 use Saloon\PaginationPlugin\Contracts\Paginatable;
 use Xternalsoft\LaravelPatrowl\Data\AssetTagData;
 
-final class GetAssetTagsRequest extends Request implements Paginatable, MapPaginatedResponseItems
+final class GetAssetTagsRequest extends Request implements MapPaginatedResponseItems, Paginatable
 {
     protected Method $method = Method::GET;
 
     /**
-     * @param array<string, mixed> $queryParams
+     * @param  array<string, mixed>  $queryParams
      */
     public function __construct(
         protected array $queryParams = [],
@@ -27,22 +27,6 @@ final class GetAssetTagsRequest extends Request implements Paginatable, MapPagin
     public function resolveEndpoint(): string
     {
         return '/assets/tags/';
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function defaultQuery(): array
-    {
-        $params = $this->queryParams;
-
-        if (! isset($params['org_id']) && ! isset($params['organization']) && $this->orgId) {
-            $params['org_id'] = $this->orgId;
-        }
-
-        $params['limit'] = $params['limit'] ?? $this->limit;
-
-        return $params;
     }
 
     /**
@@ -59,5 +43,21 @@ final class GetAssetTagsRequest extends Request implements Paginatable, MapPagin
     public function createDtoFromResponse(Response $response): array
     {
         return $this->mapPaginatedResponseItems($response);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function defaultQuery(): array
+    {
+        $params = $this->queryParams;
+
+        if (! isset($params['org_id']) && ! isset($params['organization']) && $this->orgId) {
+            $params['org_id'] = $this->orgId;
+        }
+
+        $params['limit'] = $params['limit'] ?? $this->limit;
+
+        return $params;
     }
 }

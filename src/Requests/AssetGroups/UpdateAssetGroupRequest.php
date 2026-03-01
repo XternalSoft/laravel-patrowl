@@ -20,7 +20,7 @@ final class UpdateAssetGroupRequest extends Request implements HasBody
     protected Method $method = Method::PATCH;
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function __construct(protected int $id, protected array $data) {}
 
@@ -29,16 +29,16 @@ final class UpdateAssetGroupRequest extends Request implements HasBody
         return "/assets/group/{$this->id}/";
     }
 
+    public function createDtoFromResponse(Response $response): AssetGroupData
+    {
+        return AssetGroupData::fromApi($response->json());
+    }
+
     /**
      * @return array<string, mixed>
      */
     protected function defaultBody(): array
     {
         return $this->data;
-    }
-
-    public function createDtoFromResponse(Response $response): AssetGroupData
-    {
-        return AssetGroupData::fromApi($response->json());
     }
 }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Xternalsoft\LaravelPatrowl\Data;
 
-use function config;
-
 final class AddTagToAssetData
 {
     public function __construct(
