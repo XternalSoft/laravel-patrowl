@@ -26,8 +26,6 @@ final class AssetData
         public string $created_by,
         public ?string $created_at,
         public ?string $updated_at,
-        /** @var array<int, mixed> */
-        public array $tags,
         public int $score_level,
         /** @var array<RelatedTechnologyData>|null */
         public ?array $technologies,
@@ -71,7 +69,6 @@ final class AssetData
             created_by: $data['created_by'],
             created_at: $data['created_at'] ?? null,
             updated_at: $data['updated_at'] ?? null,
-            tags: $data['tags'] ?? [],
             score_level: $data['score_level'],
             technologies: isset($data['technologies']) ? array_map(fn (array $tech) => RelatedTechnologyData::fromApi($tech), $data['technologies']) : null,
             asset_owners: isset($data['asset_owners']) ? array_map(fn (array $owner) => AssetOwnerData::fromApi($owner), $data['asset_owners']) : null,
@@ -109,7 +106,6 @@ final class AssetData
             'created_by' => $this->created_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'tags' => $this->tags,
             'score_level' => $this->score_level,
             'technologies' => $this->technologies ? array_map(fn (RelatedTechnologyData $tech) => $tech->toArray(), $this->technologies) : null,
             'asset_owners' => $this->asset_owners ? array_map(fn (AssetOwnerData $owner) => $owner->toArray(), $this->asset_owners) : null,
