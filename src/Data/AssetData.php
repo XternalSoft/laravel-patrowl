@@ -10,7 +10,7 @@ use Xternalsoft\LaravelPatrowl\Enums\ExposureEnum;
 use Xternalsoft\LaravelPatrowl\Enums\LivenessEnum;
 use Xternalsoft\LaravelPatrowl\Enums\TypeEf5Enum;
 
-final class AssetData
+class AssetData
 {
     public function __construct(
         public int $id,
