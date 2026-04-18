@@ -14,8 +14,61 @@ use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
 use Xternalsoft\LaravelPatrowl\Requests\AssetGroups\AddAssetsToGroupRequest;
 use Xternalsoft\LaravelPatrowl\Requests\AssetGroups\AddTagToAssetGroupRequest;
 use Xternalsoft\LaravelPatrowl\Requests\AssetGroups\CreateAssetGroupRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetGroups\DeleteAssetGroupRequest;
 use Xternalsoft\LaravelPatrowl\Requests\AssetGroups\GetAssetGroupRequest;
 use Xternalsoft\LaravelPatrowl\Requests\AssetGroups\GetAssetGroupsRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetGroups\RemoveAssetsFromGroupRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetGroups\UpdateAssetGroupRequest;
+
+it('can update an asset group', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        UpdateAssetGroupRequest::class => MockResponse::make([
+            'id' => 1,
+            'title' => 'Updated Group',
+        ], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $group = LaravelPatrowl::assetGroups()->update(1, ['title' => 'Updated Group']);
+
+    $mockClient->assertSent(UpdateAssetGroupRequest::class);
+    expect($group)->toBeInstanceOf(AssetGroupData::class)
+        ->id->toBe(1)
+        ->title->toBe('Updated Group');
+});
+
+it('can delete an asset group', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        DeleteAssetGroupRequest::class => MockResponse::make([], 204),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $response = LaravelPatrowl::assetGroups()->delete(1);
+
+    $mockClient->assertSent(DeleteAssetGroupRequest::class);
+    expect($response->status())->toBe(204);
+});
+
+it('can remove assets from an asset group', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        RemoveAssetsFromGroupRequest::class => MockResponse::make([], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $response = LaravelPatrowl::assetGroups()->removeAssets(1, [1, 2]);
+
+    $mockClient->assertSent(RemoveAssetsFromGroupRequest::class);
+    expect($response->status())->toBe(200);
+});
 
 it('can get asset groups', function () {
     config()->set('patrowl.api_token', 'fake-token');

@@ -14,11 +14,115 @@ use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
 use Xternalsoft\LaravelPatrowl\Data\DomainLiteData;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\AddTagToAssetRequest;
+use Xternalsoft\LaravelPatrowl\Requests\Assets\BulkUpdateAssetsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\CreateAssetRequest;
+use Xternalsoft\LaravelPatrowl\Requests\Assets\DeleteAssetRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\GetAssetRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\GetAssetsRequest;
+use Xternalsoft\LaravelPatrowl\Requests\Assets\RefreshAssetScoreRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\RemoveAssetTagFromAssetRequest;
+use Xternalsoft\LaravelPatrowl\Requests\Assets\ReplaceAssetRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\SyncAssetTagsRequest;
+use Xternalsoft\LaravelPatrowl\Requests\Assets\UpdateAssetRequest;
+
+function getFakeAssetData(array $overrides = []): array
+{
+    return array_merge([
+        'id' => 1,
+        'value' => 'asset.com',
+        'criticality' => 1,
+        'type' => 'domain',
+        'description' => 'Asset',
+        'exposure' => 'external',
+        'is_active' => true,
+        'score' => 0,
+        'protection' => ['status' => 'unprotected', 'availability' => 'available'],
+        'created_by' => 'test',
+        'score_level' => 0,
+        'ip_state' => 'running',
+        'liveness' => 'up',
+        'has_webservers' => false,
+    ], $overrides);
+}
+
+it('can update an asset', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        UpdateAssetRequest::class => MockResponse::make(getFakeAssetData(['value' => 'updated-asset.com']), 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $asset = LaravelPatrowl::assets()->update(1, ['value' => 'updated-asset.com']);
+
+    $mockClient->assertSent(UpdateAssetRequest::class);
+    expect($asset)->toBeInstanceOf(AssetData::class)
+        ->id->toBe(1)
+        ->value->toBe('updated-asset.com');
+});
+
+it('can replace an asset', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        ReplaceAssetRequest::class => MockResponse::make(getFakeAssetData(['value' => 'replaced-asset.com']), 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $asset = LaravelPatrowl::assets()->replace(1, ['value' => 'replaced-asset.com']);
+
+    $mockClient->assertSent(ReplaceAssetRequest::class);
+    expect($asset)->toBeInstanceOf(AssetData::class)
+        ->id->toBe(1)
+        ->value->toBe('replaced-asset.com');
+});
+
+it('can delete an asset', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        DeleteAssetRequest::class => MockResponse::make([], 204),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $response = LaravelPatrowl::assets()->delete(1);
+
+    $mockClient->assertSent(DeleteAssetRequest::class);
+    expect($response->status())->toBe(204);
+});
+
+it('can bulk update assets', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        BulkUpdateAssetsRequest::class => MockResponse::make([], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $response = LaravelPatrowl::assets()->bulkUpdate(['is_active' => true]);
+
+    $mockClient->assertSent(BulkUpdateAssetsRequest::class);
+    expect($response->status())->toBe(200);
+});
+
+it('can refresh an asset score', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        RefreshAssetScoreRequest::class => MockResponse::make([], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $response = LaravelPatrowl::assets()->refreshScore(1);
+
+    $mockClient->assertSent(RefreshAssetScoreRequest::class);
+    expect($response->status())->toBe(200);
+});
 
 it('can sync tags for an asset', function () {
     config()->set('patrowl.api_token', 'fake-token');
