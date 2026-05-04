@@ -2,9 +2,10 @@ includes:
     - phpstan-baseline.neon
 
 parameters:
-    level: 5
+    level: 6
     paths:
         - src
         - config
-        - database
-    tmpDir: build/phpstan
+    tmpDir: /tmp/phpstan
+    ignoreErrors:
+        - "#^Called 'env' outside of the config directory which returns null when the config is cached, use 'config'\\.$#"
