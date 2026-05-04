@@ -10,7 +10,10 @@ use Xternalsoft\LaravelPatrowl\Enums\ExposureEnum;
 use Xternalsoft\LaravelPatrowl\Enums\LivenessEnum;
 use Xternalsoft\LaravelPatrowl\Enums\TypeEf5Enum;
 
-final class AssetData
+/**
+ * @phpstan-consistent-constructor
+ */
+class AssetData
 {
     public function __construct(
         public int $id,
@@ -55,7 +58,7 @@ final class AssetData
      */
     public static function fromApi(array $data): static
     {
-        return new self(
+        return new static(
             id: $data['id'],
             value: $data['value'],
             criticality: ComplexityEnum::from($data['criticality']),
