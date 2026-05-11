@@ -32,6 +32,12 @@ final class RiskData
         public array $assets = [],
         /** @var array<int, mixed> */
         public array $assetgroups = [],
+        public ?string $topic = null,
+        public ?int $topicId = null,
+        public ?string $topicSlug = null,
+        public ?string $subtopic = null,
+        public ?int $subtopicId = null,
+        public ?string $subtopicSlug = null,
         public ?string $createdAt = null,
         public ?string $updatedAt = null,
         public ?int $todosCount = null,
@@ -62,6 +68,30 @@ final class RiskData
             };
         }
 
+        $topicData = $data['topic'] ?? null;
+        $topic = null;
+        $topicId = null;
+        $topicSlug = null;
+        if (is_array($topicData)) {
+            $topic = $topicData['title'] ?? $topicData['name'] ?? $topicData['value'] ?? null;
+            $topicId = $topicData['id'] ?? null;
+            $topicSlug = $topicData['slug'] ?? null;
+        } elseif (is_string($topicData)) {
+            $topic = $topicData;
+        }
+
+        $subtopicData = $data['subtopic'] ?? null;
+        $subtopic = null;
+        $subtopicId = null;
+        $subtopicSlug = null;
+        if (is_array($subtopicData)) {
+            $subtopic = $subtopicData['title'] ?? $subtopicData['name'] ?? $subtopicData['value'] ?? null;
+            $subtopicId = $subtopicData['id'] ?? null;
+            $subtopicSlug = $subtopicData['slug'] ?? null;
+        } elseif (is_string($subtopicData)) {
+            $subtopic = $subtopicData;
+        }
+
         return new self(
             title: $data['title'],
             id: $data['id'] ?? null,
@@ -78,6 +108,12 @@ final class RiskData
             attachments: $data['attachments'] ?? [],
             assets: $data['assets'] ?? [],
             assetgroups: $data['assetgroups'] ?? [],
+            topic: is_string($topic) ? $topic : null,
+            topicId: $topicId ? (int) $topicId : null,
+            topicSlug: is_string($topicSlug) ? $topicSlug : null,
+            subtopic: is_string($subtopic) ? $subtopic : null,
+            subtopicId: $subtopicId ? (int) $subtopicId : null,
+            subtopicSlug: is_string($subtopicSlug) ? $subtopicSlug : null,
             createdAt: $data['created_at'] ?? null,
             updatedAt: $data['updated_at'] ?? null,
             todosCount: $data['todos_count'] ?? null,
@@ -106,6 +142,12 @@ final class RiskData
             'attachments' => $this->attachments,
             'assets' => $this->assets,
             'assetgroups' => $this->assetgroups,
+            'topic' => $this->topic,
+            'topic_id' => $this->topicId,
+            'topic_slug' => $this->topicSlug,
+            'subtopic' => $this->subtopic,
+            'subtopic_id' => $this->subtopicId,
+            'subtopic_slug' => $this->subtopicSlug,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
             'todos_count' => $this->todosCount,

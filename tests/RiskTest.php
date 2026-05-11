@@ -51,10 +51,14 @@ it('handles nested objects for asset topic and subtopic', function () {
             'value' => 'example.com',
         ],
         'topic' => [
-            'name' => 'Security',
+            'id' => 10,
+            'title' => 'Security',
+            'slug' => 'security',
         ],
         'subtopic' => [
-            'value' => 'Network',
+            'id' => 20,
+            'title' => 'Network',
+            'slug' => 'network',
         ],
     ];
 
@@ -63,7 +67,11 @@ it('handles nested objects for asset topic and subtopic', function () {
     expect($risk->assetId)->toBe(123)
         ->and($risk->assetValue)->toBe('example.com')
         ->and($risk->topic)->toBe('Security')
-        ->and($risk->subtopic)->toBe('Network');
+        ->and($risk->topicId)->toBe(10)
+        ->and($risk->topicSlug)->toBe('security')
+        ->and($risk->subtopic)->toBe('Network')
+        ->and($risk->subtopicId)->toBe(20)
+        ->and($risk->subtopicSlug)->toBe('network');
 });
 
 it('parses pipe separated asset tags', function () {
