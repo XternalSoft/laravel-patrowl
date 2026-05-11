@@ -145,6 +145,24 @@ $csvContent = LaravelPatrowl::risks()->exportCsv();
 file_put_contents('risks_export.csv', $csvContent);
 ```
 
+#### List Risk Topics and Subtopics
+
+```php
+// List all risk topics
+$topics = LaravelPatrowl::risks()->topics();
+
+foreach ($topics->items() as $topic) {
+    echo $topic->title . ' (' . $topic->slug . ')';
+}
+
+// List all risk subtopics
+$subtopics = LaravelPatrowl::risks()->subtopics();
+
+foreach ($subtopics->items() as $subtopic) {
+    echo $subtopic->title . ' (' . $subtopic->slug . ')';
+}
+```
+
 ### Asset Groups
 
 #### Create an Asset Group

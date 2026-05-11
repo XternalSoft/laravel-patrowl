@@ -29,6 +29,16 @@ PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_risks
 PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/export_risks_csv.php
 ```
 
+### List Risk Topics
+```bash
+PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_risks_topics.php
+```
+
+### List Risk Subtopics
+```bash
+PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_risks_subtopics.php
+```
+
 ## Usage in a Laravel Application
 
 If you have already configured your `.env` file with:
