@@ -76,7 +76,7 @@ use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
 // Get all assets
 $assets = LaravelPatrowl::assets()->all();
 
-foreach ($assets as $asset) {
+foreach ($assets->items() as $asset) {
     echo $asset->value;
 }
 ```
@@ -118,6 +118,31 @@ if ($response->successful()) {
 
 ```php
 $response = LaravelPatrowl::assets()->removeTag($assetId, $tagId);
+```
+
+### Risks
+
+#### List and Get Risks
+
+```php
+// List all risks
+$risks = LaravelPatrowl::risks()->all();
+
+foreach ($risks->items() as $risk) {
+    echo $risk->title . ' (' . $risk->severity->name . ')';
+}
+
+// Get a specific risk
+$risk = LaravelPatrowl::risks()->get($riskId);
+```
+
+#### Export Risks to CSV
+
+```php
+// Export all risks to CSV format
+$csvContent = LaravelPatrowl::risks()->exportCsv();
+
+file_put_contents('risks_export.csv', $csvContent);
 ```
 
 ### Asset Groups
