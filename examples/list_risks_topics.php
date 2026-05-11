@@ -32,7 +32,7 @@ $connector = new LaravelPatrowl(
 try {
     echo "--- RISK TOPICS ---\n";
     $topics = $connector->risks()->topics();
-    
+
     foreach ($topics->items() as $topic) {
         /** @var Xternalsoft\LaravelPatrowl\Data\RiskTopicData $topic */
         echo "ID: {$topic->id} | Title: {$topic->title} | Slug: {$topic->slug}\n";

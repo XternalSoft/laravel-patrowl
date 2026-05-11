@@ -6,6 +6,8 @@ use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 use Xternalsoft\LaravelPatrowl\Data\RiskData;
 use Xternalsoft\LaravelPatrowl\Data\RiskInListData;
+use Xternalsoft\LaravelPatrowl\Data\RiskSubtopicData;
+use Xternalsoft\LaravelPatrowl\Data\RiskTopicData;
 use Xternalsoft\LaravelPatrowl\Enums\RiskSeverityEnum;
 use Xternalsoft\LaravelPatrowl\Enums\RiskStatusEnum;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
@@ -14,8 +16,6 @@ use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRiskRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRisksRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRiskSubtopicsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRiskTopicsRequest;
-use Xternalsoft\LaravelPatrowl\Data\RiskTopicData;
-use Xternalsoft\LaravelPatrowl\Data\RiskSubtopicData;
 
 function getFakeRiskData(array $overrides = []): array
 {

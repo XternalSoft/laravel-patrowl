@@ -38,36 +38,36 @@ try {
         echo "ID: {$subtopic->id}\n";
         echo "Title: {$subtopic->title}\n";
         echo "Slug: {$subtopic->slug}\n";
-        
+
         if ($subtopic->description) {
             echo "Description: {$subtopic->description}\n";
         }
-        
+
         if ($subtopic->isAvailable !== null) {
-            echo "Available: " . ($subtopic->isAvailable ? 'Yes' : 'No') . "\n";
+            echo 'Available: '.($subtopic->isAvailable ? 'Yes' : 'No')."\n";
         }
-        
+
         if ($subtopic->defaultSeverity !== null) {
             echo "Default Severity: {$subtopic->defaultSeverity}\n";
         }
-        
+
         if ($subtopic->securityCheck !== null) {
             echo "Security Check: {$subtopic->securityCheck}\n";
         }
-        
+
         if ($subtopic->remediation) {
             echo "Remediation: {$subtopic->remediation}\n";
         }
-        
+
         if ($subtopic->remediationEffort !== null) {
             echo "Effort: {$subtopic->remediationEffort}\n";
         }
-        
+
         if ($subtopic->remediationPriority !== null) {
             echo "Priority: {$subtopic->remediationPriority}\n";
         }
-        
-        echo str_repeat('-', 20) . "\n";
+
+        echo str_repeat('-', 20)."\n";
     }
 
 } catch (Exception $e) {
