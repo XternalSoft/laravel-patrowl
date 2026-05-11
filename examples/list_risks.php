@@ -32,7 +32,7 @@ $connector = new LaravelPatrowl(
 $out = fopen('php://stdout', 'w');
 
 // Header
-fputcsv($out, ['id', 'title', 'topic', 'subtopic', 'asset', 'asset_tags', 'severity', 'status', 'created_at', 'last_seen_at', 'raw_data']);
+fputcsv($out, ['id', 'title', 'topic', 'topic_id', 'topic_slug', 'subtopic', 'subtopic_id', 'subtopic_slug', 'asset', 'asset_tags', 'severity', 'status', 'created_at', 'last_seen_at', 'raw_data']);
 
 try {
     $paginator = $connector->risks()->all();
@@ -43,7 +43,11 @@ try {
             $risk->id,
             $risk->title,
             $risk->topic ?? '',
+            $risk->topicId ?? '',
+            $risk->topicSlug ?? '',
             $risk->subtopic ?? '',
+            $risk->subtopicId ?? '',
+            $risk->subtopicSlug ?? '',
             $risk->assetValue ?? '',
             implode('|', $risk->assetTags ?? []),
             $risk->severity?->name ?? '',

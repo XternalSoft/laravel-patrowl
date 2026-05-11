@@ -12,6 +12,10 @@ use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
 use Xternalsoft\LaravelPatrowl\Requests\Risks\ExportRisksCsvRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRiskRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRisksRequest;
+use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRiskSubtopicsRequest;
+use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRiskTopicsRequest;
+use Xternalsoft\LaravelPatrowl\Data\RiskTopicData;
+use Xternalsoft\LaravelPatrowl\Data\RiskSubtopicData;
 
 function getFakeRiskData(array $overrides = []): array
 {
@@ -152,4 +156,66 @@ it('can export risks to csv', function () {
     $csv = LaravelPatrowl::risks()->exportCsv();
 
     expect($csv)->toBe('id,title,severity');
+});
+
+it('can get risk topics', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        GetRiskTopicsRequest::class => MockResponse::make([
+            'count' => 1,
+            'next' => null,
+            'previous' => null,
+            'results' => [
+                ['id' => 1, 'title' => 'Security', 'slug' => 'security'],
+            ],
+        ], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $topics = iterator_to_array(LaravelPatrowl::risks()->topics()->items());
+
+    expect($topics)->toHaveCount(1)
+        ->and($topics[0])->toBeInstanceOf(RiskTopicData::class)
+        ->and($topics[0]->id)->toBe(1)
+        ->and($topics[0]->title)->toBe('Security');
+});
+
+it('can get risk subtopics', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        GetRiskSubtopicsRequest::class => MockResponse::make([
+            'count' => 1,
+            'next' => null,
+            'previous' => null,
+            'results' => [
+                [
+                    'id' => 75,
+                    'title' => 'Weak ciphersuite',
+                    'slug' => 'weak-ciphersuite',
+                    'description' => 'Test description',
+                    'is_available' => true,
+                    'default_severity' => 1,
+                    'security_check' => 31,
+                    'remediation' => 'Test remediation',
+                    'remediation_effort' => 0,
+                    'remediation_priority' => 0,
+                ],
+            ],
+        ], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $subtopics = iterator_to_array(LaravelPatrowl::risks()->subtopics()->items());
+
+    expect($subtopics)->toHaveCount(1)
+        ->and($subtopics[0])->toBeInstanceOf(RiskSubtopicData::class)
+        ->and($subtopics[0]->id)->toBe(75)
+        ->and($subtopics[0]->title)->toBe('Weak ciphersuite')
+        ->and($subtopics[0]->description)->toBe('Test description')
+        ->and($subtopics[0]->isAvailable)->toBeTrue()
+        ->and($subtopics[0]->securityCheck)->toBe(31);
 });

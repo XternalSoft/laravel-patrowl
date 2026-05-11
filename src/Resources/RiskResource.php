@@ -10,6 +10,8 @@ use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
 use Xternalsoft\LaravelPatrowl\Requests\Risks\ExportRisksCsvRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRiskRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRisksRequest;
+use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRiskSubtopicsRequest;
+use Xternalsoft\LaravelPatrowl\Requests\Risks\GetRiskTopicsRequest;
 
 final readonly class RiskResource
 {
@@ -54,5 +56,33 @@ final readonly class RiskResource
             $queryParams,
             $this->connector->getDefaultOrganizationId()
         ))->body();
+    }
+
+    /**
+     * Get all risk topics with auto-pagination.
+     *
+     * @param  array<string, mixed>  $queryParams
+     */
+    public function topics(array $queryParams = []): Paginator
+    {
+        return $this->connector->paginate(new GetRiskTopicsRequest(
+            $queryParams,
+            $this->connector->getDefaultOrganizationId(),
+            $this->connector->getLimit()
+        ));
+    }
+
+    /**
+     * Get all risk subtopics with auto-pagination.
+     *
+     * @param  array<string, mixed>  $queryParams
+     */
+    public function subtopics(array $queryParams = []): Paginator
+    {
+        return $this->connector->paginate(new GetRiskSubtopicsRequest(
+            $queryParams,
+            $this->connector->getDefaultOrganizationId(),
+            $this->connector->getLimit()
+        ));
     }
 }
