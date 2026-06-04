@@ -210,6 +210,45 @@ $response = LaravelPatrowl::assetGroups()->addTag($groupId, $data);
 $tags = LaravelPatrowl::assetTags()->all();
 ```
 
+### Controls
+
+```php
+// List all controls with auto-pagination
+$controls = LaravelPatrowl::controls()->all();
+
+foreach ($controls as $control) {
+    echo $control->title;
+}
+
+// Get a specific control in detail (including impacted assets and vulnerabilities)
+$control = LaravelPatrowl::controls()->get($controlId);
+
+foreach ($control->assetsImpacted as $asset) {
+    echo $asset->value;
+}
+```
+
+#### Filtering Controls
+
+You can filter controls and utilize the built-in integer-backed enums:
+
+```php
+use Xternalsoft\LaravelPatrowl\Enums\ControlStatusEnum;
+use Xternalsoft\LaravelPatrowl\Enums\ControlResultEnum;
+
+// Filter controls by severity and status
+$controls = LaravelPatrowl::controls()->all([
+    'severity' => 'critical',
+    'status' => ControlStatusEnum::Finished->value,
+]);
+
+foreach ($controls as $control) {
+    if ($control->result === ControlResultEnum::Impacted) {
+        // Handle impacted asset controls
+    }
+}
+```
+
 ## Testing
 
 ```bash
