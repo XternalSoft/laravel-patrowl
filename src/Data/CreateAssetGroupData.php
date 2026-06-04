@@ -34,7 +34,7 @@ final class CreateAssetGroupData
         $data = [
             'title' => $this->title,
             'description' => $this->description,
-            'organization' => $this->organization ?? config('patrowl.default_organization_id'),
+            'org_id' => $this->organization ?? config('patrowl.default_organization_id'),
             'tags' => $this->tags,
             'owners' => $this->owners,
             'suborganizations' => $this->suborganizations,

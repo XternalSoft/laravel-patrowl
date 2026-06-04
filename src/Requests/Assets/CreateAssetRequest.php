@@ -42,7 +42,7 @@ final class CreateAssetRequest extends Request implements HasBody
     {
         $body = $this->data->toArray();
 
-        if (! isset($body['org_id']) && ! isset($body['organization']) && $this->orgId) {
+        if (! isset($body['org_id']) && $this->orgId) {
             $body['org_id'] = $this->orgId;
         }
 

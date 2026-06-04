@@ -22,7 +22,7 @@ final class CreateAssetTagData
         $data = [
             'id' => $this->id,
             'value' => $this->value,
-            'organization' => $this->organization ?? config('patrowl.default_organization_id'),
+            'org_id' => $this->organization ?? config('patrowl.default_organization_id'),
         ];
 
         return array_filter($data, fn ($value) => $value !== null);

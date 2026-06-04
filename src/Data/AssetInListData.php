@@ -54,7 +54,7 @@ final class AssetInListData
             type: isset($data['type']) ? TypeEf5Enum::from($data['type']) : null,
             description: $data['description'] ?? null,
             exposure: isset($data['exposure']) ? ExposureEnum::from($data['exposure']) : null,
-            isActive: $data['is_active'] ?? null,
+            isActive: $data['is_active'] ?? $data['is_monitored'] ?? null,
             score: $data['score'] ?? null,
             protection: isset($data['protection']) ? ProtectionData::fromApi($data['protection']) : null,
             createdBy: $data['created_by'] ?? null,

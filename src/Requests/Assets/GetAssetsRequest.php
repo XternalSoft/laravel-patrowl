@@ -52,7 +52,7 @@ final class GetAssetsRequest extends Request implements MapPaginatedResponseItem
     {
         $params = $this->queryParams;
 
-        if (! isset($params['org_id']) && ! isset($params['organization']) && $this->orgId) {
+        if (! isset($params['org_id']) && $this->orgId) {
             $params['org_id'] = $this->orgId;
         }
 

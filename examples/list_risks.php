@@ -10,16 +10,16 @@ use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
  * Example script to list risks using the LaravelPatrowl connector in CSV format.
  *
  * Usage:
- * PATROWL_TOKEN=your_token PATROWL_ORG_ID=your_org_id php examples/list_risks.php
+ * PATROWL_API_TOKEN=your_token PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_risks.php
  */
 
 // Configuration
-$token = getenv('PATROWL_TOKEN') ?: 'YOUR_API_TOKEN';
-$orgId = getenv('PATROWL_ORG_ID') ?: null;
-$baseUrl = getenv('PATROWL_BASE_URL') ?: 'https://dashboard.cloud.patrowl.io/api/auth';
+$token = getenv('PATROWL_API_TOKEN') ?: 'YOUR_API_TOKEN';
+$orgId = getenv('PATROWL_DEFAULT_ORGANIZATION_ID') ?: null;
+$baseUrl = getenv('PATROWL_API_BASE_URL') ?: 'https://dashboard.cloud.patrowl.io/api/auth';
 
 if ($token === 'YOUR_API_TOKEN') {
-    fwrite(STDERR, "Please provide your API token via PATROWL_TOKEN environment variable.\n");
+    fwrite(STDERR, "Please provide your API token via PATROWL_API_TOKEN environment variable.\n");
     exit(1);
 }
 

@@ -52,7 +52,7 @@ final class GetRiskTopicsRequest extends Request implements MapPaginatedResponse
     {
         $params = $this->queryParams;
 
-        if (! isset($params['org_id']) && ! isset($params['organization']) && $this->orgId) {
+        if (! isset($params['org_id']) && $this->orgId) {
             $params['org_id'] = $this->orgId;
         }
 
