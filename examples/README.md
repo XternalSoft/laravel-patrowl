@@ -12,7 +12,7 @@ composer install
 
 ## Running the Examples
 
-All examples rely on environment variables for API configuration. You must provide your Patrowl API token (as `PATROWL_TOKEN` or `PATROWL_API_TOKEN` depending on the script) when running them.
+All examples rely on environment variables for API configuration. You must provide your Patrowl API token (`PATROWL_API_TOKEN`) and optionally your default organization ID (`PATROWL_DEFAULT_ORGANIZATION_ID`) when running them.
 
 ### Assets & Controls Examples
 
@@ -20,7 +20,7 @@ These examples showcase managing assets and the new security controls integratio
 
 #### 1. List Assets
 ```bash
-PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_assets.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_assets.php
 ```
 
 #### 2. List Controls (with Auto-Pagination)
@@ -49,22 +49,22 @@ These examples showcase risk and vulnerability management:
 
 #### 6. List Risks
 ```bash
-PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_risks.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_risks.php
 ```
 
 #### 7. Export Risks to CSV
 ```bash
-PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/export_risks_csv.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/export_risks_csv.php
 ```
 
 #### 8. List Risk Topics
 ```bash
-PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_risks_topics.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_risks_topics.php
 ```
 
 #### 9. List Risk Subtopics
 ```bash
-PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_risks_subtopics.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_risks_subtopics.php
 ```
 
 ## Usage in a Laravel Application

@@ -10,16 +10,16 @@ use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
  * Example script to list risk subtopics using the LaravelPatrowl connector.
  *
  * Usage:
- * PATROWL_TOKEN=your_token PATROWL_ORG_ID=your_org_id php examples/list_risks_subtopics.php
+ * PATROWL_API_TOKEN=your_token PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_risks_subtopics.php
  */
 
 // Configuration
-$token = getenv('PATROWL_TOKEN') ?: 'YOUR_API_TOKEN';
-$orgId = getenv('PATROWL_ORG_ID') ?: null;
-$baseUrl = getenv('PATROWL_BASE_URL') ?: 'https://dashboard.cloud.patrowl.io/api/auth';
+$token = getenv('PATROWL_API_TOKEN') ?: 'YOUR_API_TOKEN';
+$orgId = getenv('PATROWL_DEFAULT_ORGANIZATION_ID') ?: null;
+$baseUrl = getenv('PATROWL_API_BASE_URL') ?: 'https://dashboard.cloud.patrowl.io/api/auth';
 
 if ($token === 'YOUR_API_TOKEN') {
-    echo "Please provide your API token via PATROWL_TOKEN environment variable.\n";
+    echo "Please provide your API token via PATROWL_API_TOKEN environment variable.\n";
     exit(1);
 }
 
