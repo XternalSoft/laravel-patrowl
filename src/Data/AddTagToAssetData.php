@@ -18,7 +18,7 @@ final class AddTagToAssetData
     {
         $data = [
             'value' => $this->value,
-            'org_id' => $this->organization,
+            'organization' => $this->organization,
         ];
 
         return array_filter($data, fn ($value) => $value !== null);
