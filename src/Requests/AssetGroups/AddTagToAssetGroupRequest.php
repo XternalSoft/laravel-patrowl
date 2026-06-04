@@ -34,8 +34,8 @@ final class AddTagToAssetGroupRequest extends Request implements HasBody
     {
         $body = $this->data->toArray();
 
-        if (! isset($body['organization']) && $this->orgId) {
-            $body['organization'] = $this->orgId;
+        if (! isset($body['org_id']) && $this->orgId) {
+            $body['org_id'] = $this->orgId;
         }
 
         return $body;

@@ -65,7 +65,7 @@ it('can create an asset tag with default organization id', function () {
     LaravelPatrowl::assetTags()->create($data);
 
     $mockClient->assertSent(function (CreateAssetTagRequest $request) {
-        return $request->body()->all()['organization'] === 456 && $request->body()->all()['id'] === 0;
+        return $request->body()->all()['org_id'] === 456 && $request->body()->all()['id'] === 0;
     });
 });
 

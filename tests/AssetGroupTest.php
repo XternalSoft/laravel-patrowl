@@ -185,7 +185,7 @@ it('can create an asset group', function () {
     $assetGroup = LaravelPatrowl::assetGroups()->create($data);
 
     $mockClient->assertSent(function (CreateAssetGroupRequest $request) {
-        return $request->body()->all()['organization'] === 1;
+        return $request->body()->all()['org_id'] === 1;
     });
 
     expect($assetGroup)
@@ -216,7 +216,7 @@ it('can create an asset group with default organization id', function () {
     LaravelPatrowl::assetGroups()->create($data);
 
     $mockClient->assertSent(function (CreateAssetGroupRequest $request) {
-        return $request->body()->all()['organization'] === 456;
+        return $request->body()->all()['org_id'] === 456;
     });
 });
 
@@ -273,7 +273,7 @@ it('can add a tag to an asset group', function () {
 
     $mockClient->assertSent(function (AddTagToAssetGroupRequest $request) {
         return $request->resolveEndpoint() === '/assets/group/1/tag' &&
-               $request->body()->all() === ['value' => 'group-tag', 'organization' => 1];
+               $request->body()->all() === ['value' => 'group-tag', 'org_id' => 1];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -297,7 +297,7 @@ it('can add a tag to an asset group with default organization id', function () {
     $response = LaravelPatrowl::assetGroups()->addTag(1, $data);
 
     $mockClient->assertSent(function (AddTagToAssetGroupRequest $request) {
-        return $request->body()->all() === ['value' => 'group-tag', 'organization' => 456];
+        return $request->body()->all() === ['value' => 'group-tag', 'org_id' => 456];
     });
 
     expect($response)->toBeInstanceOf(Response::class);

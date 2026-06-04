@@ -103,7 +103,7 @@ it('can bulk update assets', function () {
 
     LaravelPatrowl::withMockClient($mockClient);
 
-    $response = LaravelPatrowl::assets()->bulkUpdate(['is_active' => true]);
+    $response = LaravelPatrowl::assets()->bulkUpdate(['is_monitored' => true]);
 
     $mockClient->assertSent(BulkUpdateAssetsRequest::class);
     expect($response->status())->toBe(200);
@@ -390,7 +390,7 @@ it('can add a tag to an asset', function () {
 
     $mockClient->assertSent(function (AddTagToAssetRequest $request) {
         return $request->resolveEndpoint() === '/assets/1/tags/add' &&
-               $request->body()->all() === ['value' => 'my-tag', 'organization' => 1];
+               $request->body()->all() === ['value' => 'my-tag', 'org_id' => 1];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -414,7 +414,7 @@ it('can add a tag to an asset with default organization id', function () {
     $response = LaravelPatrowl::assets()->addTag(1, $data);
 
     $mockClient->assertSent(function (AddTagToAssetRequest $request) {
-        return $request->body()->all() === ['value' => 'my-tag', 'organization' => 456];
+        return $request->body()->all() === ['value' => 'my-tag', 'org_id' => 456];
     });
 
     expect($response)->toBeInstanceOf(Response::class);

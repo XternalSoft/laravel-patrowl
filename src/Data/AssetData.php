@@ -65,7 +65,7 @@ class AssetData
             type: TypeEf5Enum::from($data['type']),
             description: $data['description'] ?? null,
             exposure: ExposureEnum::from($data['exposure']),
-            is_active: $data['is_active'],
+            is_active: $data['is_active'] ?? $data['is_monitored'] ?? false,
             score: $data['score'],
             protection: ProtectionData::fromApi($data['protection']),
             outside_business_hours: isset($data['outside_business_hours']) ? AssetOutsideBusinessHoursEnum::from($data['outside_business_hours']) : null,
