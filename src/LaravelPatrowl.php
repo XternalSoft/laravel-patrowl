@@ -15,6 +15,7 @@ use Xternalsoft\LaravelPatrowl\Paginators\PatrowlPaginator;
 use Xternalsoft\LaravelPatrowl\Resources\AssetGroupResource;
 use Xternalsoft\LaravelPatrowl\Resources\AssetResource;
 use Xternalsoft\LaravelPatrowl\Resources\AssetTagResource;
+use Xternalsoft\LaravelPatrowl\Resources\ControlResource;
 use Xternalsoft\LaravelPatrowl\Resources\RiskResource;
 
 final class LaravelPatrowl extends Connector implements HasPagination
@@ -57,6 +58,11 @@ final class LaravelPatrowl extends Connector implements HasPagination
     public function assetTags(): AssetTagResource
     {
         return new AssetTagResource($this);
+    }
+
+    public function controls(): ControlResource
+    {
+        return new ControlResource($this);
     }
 
     public function risks(): RiskResource
