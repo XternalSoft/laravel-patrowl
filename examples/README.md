@@ -12,29 +12,57 @@ composer install
 
 ## Running the Examples
 
-You can provide your Patrowl API token and Organization ID via environment variables:
+All examples rely on environment variables for API configuration. You must provide your Patrowl API token (as `PATROWL_TOKEN` or `PATROWL_API_TOKEN` depending on the script) when running them.
 
-### List Assets
+### Assets & Controls Examples
+
+These examples showcase managing assets and the new security controls integration:
+
+#### 1. List Assets
 ```bash
 PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_assets.php
 ```
 
-### List Risks
+#### 2. List Controls (with Auto-Pagination)
+```bash
+PATROWL_API_TOKEN="your_token_here" php examples/list_controls.php
+```
+
+#### 3. Get Control Detail (with Related Assets & Vulnerabilities)
+```bash
+PATROWL_API_TOKEN="your_token_here" php examples/get_control.php <control_id>
+```
+
+#### 4. List Warning Controls (Potentially Impacted only)
+```bash
+PATROWL_API_TOKEN="your_token_here" php examples/list_warning_controls.php
+```
+
+#### 5. List Recent Controls (Started during the last hour)
+```bash
+PATROWL_API_TOKEN="your_token_here" php examples/list_recent_controls.php
+```
+
+### Risks Examples
+
+These examples showcase risk and vulnerability management:
+
+#### 6. List Risks
 ```bash
 PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_risks.php
 ```
 
-### Export Risks to CSV
+#### 7. Export Risks to CSV
 ```bash
 PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/export_risks_csv.php
 ```
 
-### List Risk Topics
+#### 8. List Risk Topics
 ```bash
 PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_risks_topics.php
 ```
 
-### List Risk Subtopics
+#### 9. List Risk Subtopics
 ```bash
 PATROWL_TOKEN=your_token_here PATROWL_ORG_ID=your_org_id php examples/list_risks_subtopics.php
 ```
