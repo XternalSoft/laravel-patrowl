@@ -13,7 +13,7 @@ $orgId = getenv('PATROWL_DEFAULT_ORGANIZATION_ID') ? (int) getenv('PATROWL_DEFAU
 
 if (! $token) {
     echo "Error: PATROWL_API_TOKEN environment variable is not set.\n";
-    echo "Usage: PATROWL_API_TOKEN=your_token PATROWL_DEFAULT_ORGANIZATION_ID=1 php examples/list_warning_controls.php\n";
+    echo "Usage: PATROWL_API_TOKEN=your_token PATROWL_DEFAULT_ORGANIZATION_ID=1 php examples/controls_warning_list.php\n";
     exit(1);
 }
 

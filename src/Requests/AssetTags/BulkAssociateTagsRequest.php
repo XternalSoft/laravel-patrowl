@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Xternalsoft\LaravelPatrowl\Requests\AssetGroups;
+namespace Xternalsoft\LaravelPatrowl\Requests\AssetTags;
 
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody as HasJsonBodyTrait;
-use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
+use Xternalsoft\LaravelPatrowl\Data\BulkAssociateTagsData;
 use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
-final class AddTagToAssetGroupRequest extends Request implements HasBody
+final class BulkAssociateTagsRequest extends Request implements HasBody
 {
     use HasJsonBodyTrait;
     use HasOrganizationContext;
@@ -19,14 +19,13 @@ final class AddTagToAssetGroupRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        protected int $groupId,
-        protected AddTagToAssetData $data,
+        protected BulkAssociateTagsData $data,
         protected ?int $orgId = null
     ) {}
 
     public function resolveEndpoint(): string
     {
-        return "/assets/group/{$this->groupId}/tag";
+        return '/assets/tags/';
     }
 
     /**

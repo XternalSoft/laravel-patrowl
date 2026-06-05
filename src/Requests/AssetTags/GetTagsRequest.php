@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Xternalsoft\LaravelPatrowl\Requests\Risks;
+namespace Xternalsoft\LaravelPatrowl\Requests\AssetTags;
 
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
 use Saloon\PaginationPlugin\Contracts\MapPaginatedResponseItems;
 use Saloon\PaginationPlugin\Contracts\Paginatable;
-use Xternalsoft\LaravelPatrowl\Data\RiskInListData;
+use Xternalsoft\LaravelPatrowl\Data\TagData;
 use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
-final class GetRisksRequest extends Request implements MapPaginatedResponseItems, Paginatable
+final class GetTagsRequest extends Request implements MapPaginatedResponseItems, Paginatable
 {
     use HasOrganizationContext;
 
@@ -29,19 +29,19 @@ final class GetRisksRequest extends Request implements MapPaginatedResponseItems
 
     public function resolveEndpoint(): string
     {
-        return '/risks/';
+        return '/tags/';
     }
 
     /**
-     * @return array<int, RiskInListData>
+     * @return array<int, TagData>
      */
     public function mapPaginatedResponseItems(Response $response): array
     {
-        return array_map(fn (array $item) => RiskInListData::fromApi($item), $response->json('results', []));
+        return array_map(fn (array $item) => TagData::fromApi($item), $response->json('results', []));
     }
 
     /**
-     * @return array<int, RiskInListData>
+     * @return array<int, TagData>
      */
     public function createDtoFromResponse(Response $response): array
     {

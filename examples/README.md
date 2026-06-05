@@ -20,27 +20,27 @@ These examples showcase managing assets and the new security controls integratio
 
 #### 1. List Assets
 ```bash
-PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_assets.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/assets_list.php
 ```
 
 #### 2. List Controls (with Auto-Pagination)
 ```bash
-PATROWL_API_TOKEN="your_token_here" php examples/list_controls.php
+PATROWL_API_TOKEN="your_token_here" php examples/controls_list.php
 ```
 
 #### 3. Get Control Detail (with Related Assets & Vulnerabilities)
 ```bash
-PATROWL_API_TOKEN="your_token_here" php examples/get_control.php <control_id>
+PATROWL_API_TOKEN="your_token_here" php examples/controls_get.php <control_id>
 ```
 
 #### 4. List Warning Controls (Potentially Impacted only)
 ```bash
-PATROWL_API_TOKEN="your_token_here" php examples/list_warning_controls.php
+PATROWL_API_TOKEN="your_token_here" php examples/controls_warning_list.php
 ```
 
 #### 5. List Recent Controls (Started during the last hour)
 ```bash
-PATROWL_API_TOKEN="your_token_here" php examples/list_recent_controls.php
+PATROWL_API_TOKEN="your_token_here" php examples/controls_recent_list.php
 ```
 
 ### Risks Examples
@@ -49,62 +49,39 @@ These examples showcase risk and vulnerability management:
 
 #### 6. List Risks
 ```bash
-PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_risks.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_list.php
 ```
 
 #### 7. Export Risks to CSV
 ```bash
-PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/export_risks_csv.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_export_csv.php
 ```
 
 #### 8. List Risk Topics
 ```bash
-PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_risks_topics.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_topic_list.php
 ```
 
 #### 9. List Risk Subtopics
 ```bash
-PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_risks_subtopics.php
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_subtopic_list.php
 ```
 
-## Usage in a Laravel Application
+### Tags Examples
 
-If you have already configured your `.env` file with:
+These examples showcase tag management (listing, creation, and bulk association):
 
-```env
-PATROWL_API_TOKEN=your_token
-PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id
-```
-
-You can use the Facade or the container to interact with the API:
-
-### Using the Facade
-```php
-use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
-
-$assets = LaravelPatrowl::assets()->all();
-foreach ($assets->items() as $asset) {
-    // ...
-}
-```
-
-### Using Dependency Injection
-```php
-use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
-
-public function index(LaravelPatrowl $patrowl)
-{
-    $risks = $patrowl->risks()->all();
-    return view('risks.index', [
-        'risks' => $risks->collect()
-    ]);
-}
-```
-
-### Using Tinker
+#### 10. List Tags (with complete related assets & groups)
 ```bash
-php artisan tinker
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/tags_list.php
+```
 
-> $patrowl = app(Xternalsoft\LaravelPatrowl\LaravelPatrowl::class);
-> $patrowl->assets()->all()->collect();
+#### 11. Associate Tags (bulk)
+```bash
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/tags_associate.php <asset_id> <tag_id>
+```
+
+#### 12. Dissociate Tags (bulk)
+```bash
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/tags_dissociate.php <asset_id> <tag_id>
 ```

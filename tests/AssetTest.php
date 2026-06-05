@@ -352,6 +352,7 @@ it('can get assets with default organization id', function () {
 
 it('can get assets with default limit', function () {
     config()->set('patrowl.api_token', 'fake-token');
+    config()->set('patrowl.default_organization_id', null);
     config()->set('patrowl.limit', 50);
 
     $mockClient = new MockClient([

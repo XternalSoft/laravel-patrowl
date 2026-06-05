@@ -6,11 +6,13 @@ namespace Xternalsoft\LaravelPatrowl\Resources;
 
 use Saloon\PaginationPlugin\Paginator;
 use Xternalsoft\LaravelPatrowl\Data\AssetTagData;
-use Xternalsoft\LaravelPatrowl\Data\CreateAssetTagData;
+use Xternalsoft\LaravelPatrowl\Data\BulkAssociateTagsData;
 use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
-use Xternalsoft\LaravelPatrowl\Requests\AssetTags\CreateAssetTagRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetTags\BulkAssociateTagsRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetTags\BulkDissociateTagsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetAssetTagRequest;
 use Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetAssetTagsRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetTagsRequest;
 
 final readonly class AssetTagResource
 {
@@ -33,13 +35,36 @@ final readonly class AssetTagResource
     }
 
     /**
-     * Create a new asset tag.
-     *
-     * @see https://developer.patrowl.io/#operation/assets_tags_create
+     * Bulk associate tags with assets.
      */
-    public function create(CreateAssetTagData $data): AssetTagData
+    public function associate(BulkAssociateTagsData $data): \Saloon\Http\Response
     {
-        return $this->connector->send(new CreateAssetTagRequest($data, $this->connector->getDefaultOrganizationId()))->dtoOrFail();
+        return $this->connector->send(new BulkAssociateTagsRequest($data, $this->connector->getDefaultOrganizationId()));
+    }
+
+    /**
+     * Bulk dissociate tags from assets.
+     *
+     * @param  array<int, int>  $assetIds
+     * @param  array<int, int>  $tagIds
+     */
+    public function dissociate(array $assetIds, array $tagIds): \Saloon\Http\Response
+    {
+        return $this->connector->send(new BulkDissociateTagsRequest($assetIds, $tagIds));
+    }
+
+    /**
+     * List all tags with auto-pagination.
+     *
+     * @param  array<string, mixed>  $queryParams
+     */
+    public function tags(array $queryParams = []): Paginator
+    {
+        return $this->connector->paginate(new GetTagsRequest(
+            $queryParams,
+            $this->connector->getDefaultOrganizationId(),
+            $this->connector->getLimit()
+        ));
     }
 
     /**

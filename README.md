@@ -205,9 +205,68 @@ $response = LaravelPatrowl::assetGroups()->addTag($groupId, $data);
 
 ### Asset Tags
 
+#### List Tags
+
+To retrieve a paginated, filterable list of all tags, use the `tags` method. Passing `'related' => true` returns complete related asset and asset group data:
+
 ```php
-// List all available tags
-$tags = LaravelPatrowl::assetTags()->all();
+// List all available tags with complete related data
+$tags = LaravelPatrowl::assetTags()->tags([
+    'related' => true,
+]);
+
+foreach ($tags as $tag) {
+    echo $tag->value;
+    echo $tag->description;
+    
+    // View linked assets
+    foreach ($tag->assets as $asset) {
+        echo $asset['value'];
+    }
+}
+```
+
+#### Bulk Associate Tags with Assets
+
+To bulk associate multiple tags with multiple assets across an organization:
+
+```php
+use Xternalsoft\LaravelPatrowl\Data\BulkAssociateTagsData;
+
+$bulkData = new BulkAssociateTagsData(
+    assetIds: [2635579],
+    tagIds: [4241],
+    organizationId: 1815
+);
+
+$response = LaravelPatrowl::assetTags()->associate($bulkData);
+
+if ($response->successful()) {
+    echo $response->json('message'); // "Associated 1 tags with 1 assets."
+}
+```
+
+#### Bulk Dissociate Tags from Assets
+
+To bulk dissociate multiple tags from multiple assets (DELETE `/assets/tags/`):
+
+```php
+$response = LaravelPatrowl::assetTags()->dissociate(
+    assetIds: [2635579],
+    tagIds: [4241]
+);
+
+if ($response->successful()) {
+    echo $response->json('message'); // "Dissociated 1 tags from 1 assets."
+}
+```
+
+#### List Raw Asset Tags
+
+Alternatively, to query the raw tag indices, use:
+
+```php
+$assetTags = LaravelPatrowl::assetTags()->all();
 ```
 
 ### Controls

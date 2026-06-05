@@ -20,7 +20,7 @@ $controlId = isset($argv[1]) ? (int) $argv[1] : null;
 
 if (! $controlId) {
     echo "Error: Please specify a Control ID.\n";
-    echo "Usage: PATROWL_API_TOKEN=your_token php examples/get_control.php <control_id>\n";
+    echo "Usage: PATROWL_API_TOKEN=your_token php examples/controls_get.php <control_id>\n";
     exit(1);
 }
 

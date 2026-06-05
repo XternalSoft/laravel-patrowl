@@ -4,68 +4,75 @@ declare(strict_types=1);
 
 use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
+use Saloon\Http\Response;
 use Xternalsoft\LaravelPatrowl\Data\AssetTagData;
-use Xternalsoft\LaravelPatrowl\Data\CreateAssetTagData;
+use Xternalsoft\LaravelPatrowl\Data\BulkAssociateTagsData;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
-use Xternalsoft\LaravelPatrowl\Requests\AssetTags\CreateAssetTagRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetTags\BulkAssociateTagsRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetTags\BulkDissociateTagsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetAssetTagRequest;
 use Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetAssetTagsRequest;
+use Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetTagsRequest;
 
-it('can create an asset tag', function () {
+it('can bulk associate asset tags with assets', function () {
     config()->set('patrowl.api_token', 'fake-token');
 
     $mockClient = new MockClient([
-        CreateAssetTagRequest::class => MockResponse::make([
-            'id' => 1,
-            'value' => 'my-tag',
-            'organization' => 1,
-        ], 201),
+        BulkAssociateTagsRequest::class => MockResponse::make([
+            'status' => 'success',
+            'message' => 'Associated 1 tags with 1 assets.',
+        ], 200),
     ]);
 
     LaravelPatrowl::withMockClient($mockClient);
 
-    $data = new CreateAssetTagData(
-        value: 'my-tag',
-        organization: 1,
-        id: 0
+    $data = new BulkAssociateTagsData(
+        assetIds: [123],
+        tagIds: [456],
+        organizationId: 1
     );
 
-    $assetTag = LaravelPatrowl::assetTags()->create($data);
+    $response = LaravelPatrowl::assetTags()->associate($data);
 
-    $mockClient->assertSent(function (CreateAssetTagRequest $request) {
-        return $request->body()->all()['id'] === 0;
+    $mockClient->assertSent(function (BulkAssociateTagsRequest $request) {
+        return $request->body()->all() === [
+            'asset_ids' => [123],
+            'tag_ids' => [456],
+            'organization_id' => 1,
+        ];
     });
 
-    expect($assetTag)
-        ->toBeInstanceOf(AssetTagData::class)
-        ->id->toBe(1)
-        ->value->toBe('my-tag')
-        ->organization->toBe(1);
+    expect($response)->toBeInstanceOf(Response::class)
+        ->and($response->status())->toBe(200)
+        ->and($response->json('status'))->toBe('success');
 });
 
-it('can create an asset tag with default organization id', function () {
+it('can bulk associate asset tags with default organization id', function () {
     config()->set('patrowl.api_token', 'fake-token');
     config()->set('patrowl.default_organization_id', 456);
 
     $mockClient = new MockClient([
-        CreateAssetTagRequest::class => MockResponse::make([
-            'id' => 1,
-            'value' => 'my-tag',
-            'organization' => 456,
-        ], 201),
+        BulkAssociateTagsRequest::class => MockResponse::make([
+            'status' => 'success',
+            'message' => 'Associated 1 tags with 1 assets.',
+        ], 200),
     ]);
 
     LaravelPatrowl::withMockClient($mockClient);
 
-    $data = new CreateAssetTagData(
-        value: 'my-tag',
-        id: 0
+    $data = new BulkAssociateTagsData(
+        assetIds: [123],
+        tagIds: [456]
     );
 
-    LaravelPatrowl::assetTags()->create($data);
+    LaravelPatrowl::assetTags()->associate($data);
 
-    $mockClient->assertSent(function (CreateAssetTagRequest $request) {
-        return $request->body()->all()['organization'] === 456 && $request->body()->all()['id'] === 0;
+    $mockClient->assertSent(function (BulkAssociateTagsRequest $request) {
+        return $request->body()->all() === [
+            'asset_ids' => [123],
+            'tag_ids' => [456],
+            'organization_id' => 456,
+        ];
     });
 });
 
@@ -141,4 +148,66 @@ it('can get asset tags with default organization id', function () {
     $mockClient->assertSent(function (GetAssetTagsRequest $request) {
         return $request->query()->all() === ['org_id' => 456, 'limit' => 100, 'page' => 1];
     });
+});
+
+it('can get all tags from /tags/ endpoint', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        GetTagsRequest::class => MockResponse::make([
+            'count' => 1,
+            'next' => null,
+            'previous' => null,
+            'results' => [
+                [
+                    'id' => 1,
+                    'value' => 'my-tag',
+                    'description' => 'Some description',
+                    'organization' => 1,
+                    'assets' => [],
+                    'asset_groups' => [],
+                    'created_by' => null,
+                    'created_at' => '2023-01-01T00:00:00Z',
+                ],
+            ],
+        ], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $tags = iterator_to_array(LaravelPatrowl::assetTags()->tags()->items());
+
+    expect($tags)->toHaveCount(1);
+    expect($tags[0])
+        ->toBeInstanceOf(Xternalsoft\LaravelPatrowl\Data\TagData::class)
+        ->id->toBe(1)
+        ->value->toBe('my-tag')
+        ->description->toBe('Some description')
+        ->organization->toBe(1);
+});
+
+it('can bulk dissociate asset tags from assets', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        BulkDissociateTagsRequest::class => MockResponse::make([
+            'status' => 'success',
+            'message' => 'Dissociated 1 tags from 1 assets.',
+        ], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $response = LaravelPatrowl::assetTags()->dissociate([123], [456]);
+
+    $mockClient->assertSent(function (BulkDissociateTagsRequest $request) {
+        return $request->body()->all() === [
+            'asset_ids' => [123],
+            'tag_ids' => [456],
+        ];
+    });
+
+    expect($response)->toBeInstanceOf(Response::class)
+        ->and($response->status())->toBe(200)
+        ->and($response->json('status'))->toBe('success');
 });
