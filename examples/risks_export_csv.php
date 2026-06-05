@@ -7,10 +7,10 @@ require_once __DIR__.'/../vendor/autoload.php';
 use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
 
 /**
- * Example script to list assets using the LaravelPatrowl connector.
+ * Example script to export risks to CSV using the LaravelPatrowl connector.
  *
  * Usage:
- * PATROWL_API_TOKEN=your_token PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_assets.php
+ * PATROWL_API_TOKEN=your_token PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_export_csv.php
  */
 
 // Configuration
@@ -29,26 +29,22 @@ $connector = new LaravelPatrowl(
     defaultOrganizationId: $orgId ? (int) $orgId : null
 );
 
-echo "--- LISTING ASSETS ---\n";
+echo "--- EXPORTING RISKS TO CSV ---\n";
 
 try {
-    $paginator = $connector->assets()->all();
+    $csvContent = $connector->risks()->exportCsv();
 
-    $count = 0;
-    foreach ($paginator->items() as $asset) {
-        /** @var Xternalsoft\LaravelPatrowl\Data\AssetInListData $asset */
-        echo sprintf(
-            "[%d] %s (Type: %s, Score: %d, Criticality: %s)\n",
-            $asset->id,
-            $asset->value,
-            $asset->type?->value ?? 'N/A',
-            $asset->score,
-            $asset->criticality?->name ?? 'N/A'
-        );
-        $count++;
+    if (empty($csvContent)) {
+        echo "No content received from export.\n";
+        exit;
     }
 
-    echo "\nTotal assets found: $count\n";
+    $filename = 'risks_export_'.date('Ymd_His').'.csv';
+    file_put_contents($filename, $csvContent);
+
+    echo "Successfully exported to $filename\n";
+    echo "First 100 characters of CSV:\n";
+    echo mb_substr($csvContent, 0, 100)."...\n";
 
 } catch (Exception $e) {
     echo 'Error: '.$e->getMessage()."\n";

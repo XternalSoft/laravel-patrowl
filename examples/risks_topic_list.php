@@ -10,7 +10,7 @@ use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
  * Example script to list risk topics using the LaravelPatrowl connector.
  *
  * Usage:
- * PATROWL_API_TOKEN=your_token PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/list_risks_topics.php
+ * PATROWL_API_TOKEN=your_token PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_topic_list.php
  */
 
 // Configuration

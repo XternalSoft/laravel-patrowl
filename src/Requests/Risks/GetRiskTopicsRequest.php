@@ -10,9 +10,12 @@ use Saloon\Http\Response;
 use Saloon\PaginationPlugin\Contracts\MapPaginatedResponseItems;
 use Saloon\PaginationPlugin\Contracts\Paginatable;
 use Xternalsoft\LaravelPatrowl\Data\RiskTopicData;
+use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
 final class GetRiskTopicsRequest extends Request implements MapPaginatedResponseItems, Paginatable
 {
+    use HasOrganizationContext;
+
     protected Method $method = Method::GET;
 
     /**
@@ -50,11 +53,7 @@ final class GetRiskTopicsRequest extends Request implements MapPaginatedResponse
      */
     protected function defaultQuery(): array
     {
-        $params = $this->queryParams;
-
-        if (! isset($params['org_id']) && $this->orgId) {
-            $params['org_id'] = $this->orgId;
-        }
+        $params = $this->mergeOrganizationId($this->queryParams, $this->orgId, 'org_id');
 
         $params['limit'] = $params['limit'] ?? $this->limit;
 

@@ -12,11 +12,13 @@ use Saloon\Traits\Body\HasJsonBody as HasJsonBodyTrait;
 use Saloon\Traits\Request\CreatesDtoFromResponse;
 use Xternalsoft\LaravelPatrowl\Data\AssetData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
+use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
 final class CreateAssetRequest extends Request implements HasBody
 {
     use CreatesDtoFromResponse;
     use HasJsonBodyTrait;
+    use HasOrganizationContext;
 
     protected Method $method = Method::POST;
 
@@ -40,12 +42,6 @@ final class CreateAssetRequest extends Request implements HasBody
      */
     protected function defaultBody(): array
     {
-        $body = $this->data->toArray();
-
-        if (! isset($body['org_id']) && $this->orgId) {
-            $body['org_id'] = $this->orgId;
-        }
-
-        return $body;
+        return $this->mergeOrganizationId($this->data->toArray(), $this->orgId, 'org_id');
     }
 }

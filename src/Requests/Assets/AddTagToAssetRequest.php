@@ -9,10 +9,12 @@ use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody as HasJsonBodyTrait;
 use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
+use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
 final class AddTagToAssetRequest extends Request implements HasBody
 {
     use HasJsonBodyTrait;
+    use HasOrganizationContext;
 
     protected Method $method = Method::POST;
 
@@ -32,12 +34,6 @@ final class AddTagToAssetRequest extends Request implements HasBody
      */
     protected function defaultBody(): array
     {
-        $body = $this->data->toArray();
-
-        if (! isset($body['organization_id']) && $this->orgId) {
-            $body['organization_id'] = $this->orgId;
-        }
-
-        return $body;
+        return $this->mergeOrganizationId($this->data->toArray(), $this->orgId, 'organization_id');
     }
 }

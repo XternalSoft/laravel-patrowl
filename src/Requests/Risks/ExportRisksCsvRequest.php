@@ -6,9 +6,12 @@ namespace Xternalsoft\LaravelPatrowl\Requests\Risks;
 
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
+use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
 final class ExportRisksCsvRequest extends Request
 {
+    use HasOrganizationContext;
+
     protected Method $method = Method::GET;
 
     /**
@@ -29,12 +32,6 @@ final class ExportRisksCsvRequest extends Request
      */
     protected function defaultQuery(): array
     {
-        $params = $this->queryParams;
-
-        if (! isset($params['org_id']) && $this->orgId) {
-            $params['org_id'] = $this->orgId;
-        }
-
-        return $params;
+        return $this->mergeOrganizationId($this->queryParams, $this->orgId, 'org_id');
     }
 }
