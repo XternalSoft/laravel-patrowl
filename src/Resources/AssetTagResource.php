@@ -50,7 +50,11 @@ final readonly class AssetTagResource
      */
     public function dissociate(array $assetIds, array $tagIds): \Saloon\Http\Response
     {
-        return $this->connector->send(new BulkDissociateTagsRequest($assetIds, $tagIds));
+        return $this->connector->send(new BulkDissociateTagsRequest(
+            $assetIds,
+            $tagIds,
+            $this->connector->getDefaultOrganizationId()
+        ));
     }
 
     /**

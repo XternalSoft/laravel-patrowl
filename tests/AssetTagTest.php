@@ -186,8 +186,9 @@ it('can get all tags from /tags/ endpoint', function () {
         ->organization->toBe(1);
 });
 
-it('can bulk dissociate asset tags from assets', function () {
+it('can bulk dissociate asset tags from assets without organization context', function () {
     config()->set('patrowl.api_token', 'fake-token');
+    config()->set('patrowl.default_organization_id', null);
 
     $mockClient = new MockClient([
         BulkDissociateTagsRequest::class => MockResponse::make([
@@ -204,6 +205,34 @@ it('can bulk dissociate asset tags from assets', function () {
         return $request->body()->all() === [
             'asset_ids' => [123],
             'tag_ids' => [456],
+        ];
+    });
+
+    expect($response)->toBeInstanceOf(Response::class)
+        ->and($response->status())->toBe(200)
+        ->and($response->json('status'))->toBe('success');
+});
+
+it('can bulk dissociate asset tags from assets with organization context', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+    config()->set('patrowl.default_organization_id', 456);
+
+    $mockClient = new MockClient([
+        BulkDissociateTagsRequest::class => MockResponse::make([
+            'status' => 'success',
+            'message' => 'Dissociated 1 tags from 1 assets.',
+        ], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $response = LaravelPatrowl::assetTags()->dissociate([123], [456]);
+
+    $mockClient->assertSent(function (BulkDissociateTagsRequest $request) {
+        return $request->body()->all() === [
+            'asset_ids' => [123],
+            'tag_ids' => [456],
+            'organization_id' => 456,
         ];
     });
 
