@@ -391,7 +391,7 @@ it('can add a tag to an asset', function () {
 
     $mockClient->assertSent(function (AddTagToAssetRequest $request) {
         return $request->resolveEndpoint() === '/assets/1/tags/add' &&
-               $request->body()->all() === ['value' => 'my-tag', 'organization_id' => 1];
+               $request->body()->all() === ['value' => 'my-tag', 'organization' => 1];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -415,7 +415,7 @@ it('can add a tag to an asset with default organization id', function () {
     $response = LaravelPatrowl::assets()->addTag(1, $data);
 
     $mockClient->assertSent(function (AddTagToAssetRequest $request) {
-        return $request->body()->all() === ['value' => 'my-tag', 'organization_id' => 456];
+        return $request->body()->all() === ['value' => 'my-tag', 'organization' => 456];
     });
 
     expect($response)->toBeInstanceOf(Response::class);

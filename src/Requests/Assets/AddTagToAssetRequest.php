@@ -34,6 +34,6 @@ final class AddTagToAssetRequest extends Request implements HasBody
      */
     protected function defaultBody(): array
     {
-        return $this->mergeOrganizationId($this->data->toArray(), $this->orgId, 'organization_id');
+        return $this->mergeOrganizationId($this->data->toArray(), $this->orgId, 'organization');
     }
 }

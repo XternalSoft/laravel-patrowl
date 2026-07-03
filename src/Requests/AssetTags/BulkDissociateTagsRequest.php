@@ -8,12 +8,10 @@ use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody as HasJsonBodyTrait;
-use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
 final class BulkDissociateTagsRequest extends Request implements HasBody
 {
     use HasJsonBodyTrait;
-    use HasOrganizationContext;
 
     protected Method $method = Method::DELETE;
 
@@ -37,9 +35,9 @@ final class BulkDissociateTagsRequest extends Request implements HasBody
      */
     protected function defaultBody(): array
     {
-        return $this->mergeOrganizationId([
+        return [
             'asset_ids' => $this->assetIds,
             'tag_ids' => $this->tagIds,
-        ], $this->orgId, 'organization_id');
+        ];
     }
 }

@@ -232,7 +232,6 @@ it('can bulk dissociate asset tags from assets with organization context', funct
         return $request->body()->all() === [
             'asset_ids' => [123],
             'tag_ids' => [456],
-            'organization_id' => 456,
         ];
     });
 
