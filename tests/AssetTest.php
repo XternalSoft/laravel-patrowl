@@ -302,6 +302,26 @@ it('can get an asset', function () {
         ->and($asset->www_related_domain->outside_business_hours->value)->toBe(0);
 });
 
+it('can handle missing or null liveness on asset retrieval', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    // Create custom mock response without liveness key
+    $data = getFakeAssetData();
+    unset($data['liveness']);
+
+    $mockClient = new MockClient([
+        GetAssetRequest::class => MockResponse::make($data),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $asset = LaravelPatrowl::assets()->get(1);
+
+    expect($asset)
+        ->toBeInstanceOf(AssetData::class)
+        ->liveness->toBe(Xternalsoft\LaravelPatrowl\Enums\LivenessEnum::UNKNOWN);
+});
+
 it('can get assets', function () {
     config()->set('patrowl.api_token', 'fake-token');
 
@@ -328,7 +348,7 @@ it('can get assets', function () {
         ->and($assets[0]->id)->toBe(1);
 });
 
-it('can get assets with default organization id', function () {
+it('does not send organization id when getting assets even if default organization id is configured', function () {
     config()->set('patrowl.api_token', 'fake-token');
     config()->set('patrowl.default_organization_id', 456);
 
@@ -346,7 +366,7 @@ it('can get assets with default organization id', function () {
     iterator_to_array(LaravelPatrowl::assets()->all()->items());
 
     $mockClient->assertSent(function (GetAssetsRequest $request) {
-        return $request->query()->all() === ['org_id' => 456, 'limit' => 100, 'page' => 1];
+        return $request->query()->all() === ['limit' => 100, 'page' => 1];
     });
 });
 
