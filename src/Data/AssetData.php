@@ -82,7 +82,7 @@ class AssetData
             provider: $data['provider'] ?? null,
             suborganizations: $data['suborganizations'] ?? [],
             monitored_slot_lock_until: $data['monitored_slot_lock_until'] ?? null,
-            liveness: LivenessEnum::from($data['liveness']),
+            liveness: LivenessEnum::tryFrom($data['liveness'] ?? 'unknown') ?? LivenessEnum::UNKNOWN,
             www_related_domain: isset($data['www_related_domain']) ? DomainLiteData::fromApi($data['www_related_domain']) : null,
             has_webservers: $data['has_webservers'],
             suborganizations_display: $data['suborganizations_display'] ?? [],

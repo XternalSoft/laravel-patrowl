@@ -23,22 +23,27 @@ These examples showcase managing assets and the new security controls integratio
 PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/assets_list.php
 ```
 
-#### 2. List Controls (with Auto-Pagination)
+#### 2. Get Asset Detail (with Tags, Groups & Technologies)
+```bash
+PATROWL_API_TOKEN=your_token_here php examples/assets_get.php <asset_id>
+```
+
+#### 3. List Controls (with Auto-Pagination)
 ```bash
 PATROWL_API_TOKEN="your_token_here" php examples/controls_list.php
 ```
 
-#### 3. Get Control Detail (with Related Assets & Vulnerabilities)
+#### 4. Get Control Detail (with Related Assets & Vulnerabilities)
 ```bash
 PATROWL_API_TOKEN="your_token_here" php examples/controls_get.php <control_id>
 ```
 
-#### 4. List Warning Controls (Potentially Impacted only)
+#### 5. List Warning Controls (Potentially Impacted only)
 ```bash
 PATROWL_API_TOKEN="your_token_here" php examples/controls_warning_list.php
 ```
 
-#### 5. List Recent Controls (Started during the last hour)
+#### 6. List Recent Controls (Started during the last hour)
 ```bash
 PATROWL_API_TOKEN="your_token_here" php examples/controls_recent_list.php
 ```
@@ -47,22 +52,22 @@ PATROWL_API_TOKEN="your_token_here" php examples/controls_recent_list.php
 
 These examples showcase risk and vulnerability management:
 
-#### 6. List Risks
+#### 7. List Risks
 ```bash
 PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_list.php
 ```
 
-#### 7. Export Risks to CSV
+#### 8. Export Risks to CSV
 ```bash
 PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_export_csv.php
 ```
 
-#### 8. List Risk Topics
+#### 9. List Risk Topics
 ```bash
 PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_topic_list.php
 ```
 
-#### 9. List Risk Subtopics
+#### 10. List Risk Subtopics
 ```bash
 PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/risks_subtopic_list.php
 ```
@@ -71,17 +76,17 @@ PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id ph
 
 These examples showcase tag management (listing, creation, and bulk association):
 
-#### 10. List Tags (with complete related assets & groups)
+#### 11. List Tags (with complete related assets & groups)
 ```bash
 PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/tags_list.php
 ```
 
-#### 11. Associate Tags (bulk)
+#### 12. Associate Tags (bulk)
 ```bash
 PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/tags_associate.php <asset_id> <tag_id>
 ```
 
-#### 12. Dissociate Tags (bulk)
+#### 13. Dissociate Tags (bulk)
 ```bash
 PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/tags_dissociate.php <asset_id> <tag_id>
 ```

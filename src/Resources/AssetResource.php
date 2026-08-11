@@ -37,7 +37,6 @@ final readonly class AssetResource
     {
         return $this->connector->paginate(new GetAssetsRequest(
             $queryParams,
-            $this->connector->getDefaultOrganizationId(),
             $this->connector->getLimit()
         ));
     }

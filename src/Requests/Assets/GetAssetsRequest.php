@@ -10,12 +10,9 @@ use Saloon\Http\Response;
 use Saloon\PaginationPlugin\Contracts\MapPaginatedResponseItems;
 use Saloon\PaginationPlugin\Contracts\Paginatable;
 use Xternalsoft\LaravelPatrowl\Data\AssetInListData;
-use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
 final class GetAssetsRequest extends Request implements MapPaginatedResponseItems, Paginatable
 {
-    use HasOrganizationContext;
-
     protected Method $method = Method::GET;
 
     /**
@@ -23,7 +20,6 @@ final class GetAssetsRequest extends Request implements MapPaginatedResponseItem
      */
     public function __construct(
         protected array $queryParams = [],
-        protected ?int $orgId = null,
         protected int $limit = 100
     ) {}
 
@@ -53,7 +49,7 @@ final class GetAssetsRequest extends Request implements MapPaginatedResponseItem
      */
     protected function defaultQuery(): array
     {
-        $params = $this->mergeOrganizationId($this->queryParams, $this->orgId, 'org_id');
+        $params = $this->queryParams;
 
         $params['limit'] = $params['limit'] ?? $this->limit;
 
