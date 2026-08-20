@@ -16,6 +16,7 @@ use Xternalsoft\LaravelPatrowl\Resources\AssetGroupResource;
 use Xternalsoft\LaravelPatrowl\Resources\AssetResource;
 use Xternalsoft\LaravelPatrowl\Resources\AssetTagResource;
 use Xternalsoft\LaravelPatrowl\Resources\ControlResource;
+use Xternalsoft\LaravelPatrowl\Resources\OrganizationResource;
 use Xternalsoft\LaravelPatrowl\Resources\RiskResource;
 
 final class LaravelPatrowl extends Connector implements HasPagination
@@ -68,6 +69,11 @@ final class LaravelPatrowl extends Connector implements HasPagination
     public function risks(): RiskResource
     {
         return new RiskResource($this);
+    }
+
+    public function organizations(): OrganizationResource
+    {
+        return new OrganizationResource($this);
     }
 
     public function getDefaultOrganizationId(): ?int
