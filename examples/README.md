@@ -90,3 +90,21 @@ PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id ph
 ```bash
 PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/tags_dissociate.php <asset_id> <tag_id>
 ```
+
+### Organizations Examples
+
+These examples showcase managing and querying organization details:
+
+#### 14. List Organizations
+```bash
+PATROWL_API_TOKEN="your_token_here" php examples/organizations_list.php
+```
+
+#### 15. Get Organization Details
+```bash
+# Get details for the default organization of the current user
+PATROWL_API_TOKEN="your_token_here" php examples/organizations_get.php
+
+# Or get details for a specific organization by ID
+PATROWL_API_TOKEN="your_token_here" php examples/organizations_get.php <organization_id>
+```
