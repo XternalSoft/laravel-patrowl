@@ -300,6 +300,44 @@ foreach ($controls as $control) {
 }
 ```
 
+### EASM (Attack Surface Management)
+
+Every EASM resource exposes the same read API: `all()` (auto-paginated, returns typed DTOs from `Xternalsoft\LaravelPatrowl\Data\Easm`) and `get()`.
+
+| Method | Endpoint | DTO |
+|---|---|---|
+| `domains()` | `/domains` | `DomainData` |
+| `ipv4s()` | `/ipv4s` | `Ipv4Data` |
+| `resolutions()` | `/resolutions` | `ResolutionData` |
+| `asns()` | `/asns` | `AsnData` |
+| `services()` | `/services` | `ServiceData` |
+| `webServers()` | `/webservers` | `WebServerData` |
+| `certificates()` | `/certificates` | `CertificateData` |
+| `vendors()` | `/vendors` | `VendorData` |
+| `products()` | `/products` | `ProductData` |
+| `technologies()` | `/technologies` | `TechnologyData` |
+| `technologyDetections()` | `/technology-detections` | `TechnologyDetectionData` |
+| `cves()` | `/cves` | `CveData` |
+
+```php
+// List apex domains, filters are passed as query parameters
+foreach (LaravelPatrowl::domains()->all(['is_top_domain' => true])->items() as $domain) {
+    echo $domain->value;
+}
+
+// Get a service in detail (includes the banner)
+$service = LaravelPatrowl::services()->get($serviceId);
+
+// CVEs are cursor paginated and retrieved by identifier
+foreach (LaravelPatrowl::cves()->all(['severity' => 'critical,high', 'is_kev' => true])->items() as $cve) {
+    echo $cve->identifier;
+}
+
+$cve = LaravelPatrowl::cves()->get('CVE-2026-12345');
+```
+
+The default organization ID is sent as `org_id` when configured. Vendors and products are global catalogs and ignore it.
+
 ## Testing
 
 ```bash

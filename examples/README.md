@@ -104,3 +104,11 @@ PATROWL_API_TOKEN="your_token_here" php examples/organizations_list.php
 ```bash
 PATROWL_API_TOKEN="your_token_here" php examples/organizations_get.php <organization_id>
 ```
+
+### EASM Examples
+
+#### 16. List any EASM resource
+```bash
+# resource: domains, ipv4s, resolutions, asns, services, webServers, certificates, vendors, products, technologies, technologyDetections, cves
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/easm_list.php domains 20
+```
