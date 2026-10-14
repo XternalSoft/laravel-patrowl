@@ -204,7 +204,7 @@ $response = LaravelPatrowl::assets()->refreshScore($assetId);
 ```php
 use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 
-// Add a tag (created if it does not exist)
+// Create a tag and link it to the asset (POST /tags/)
 $response = LaravelPatrowl::assets()->addTag($assetId, new AddTagToAssetData(
     value: 'production',
     organization: 1
