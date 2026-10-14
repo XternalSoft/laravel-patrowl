@@ -49,6 +49,7 @@ try {
     echo "Created At:  {$asset->created_at}\n";
     echo "Updated At:  {$asset->updated_at}\n";
     echo "Description: {$asset->description}\n";
+    echo 'Screenshot:  '.($asset->screenshot->url ?? 'N/A')."\n";
 
     if ($asset->www_related_domain) {
         echo "Related Domain: {$asset->www_related_domain->value}\n";

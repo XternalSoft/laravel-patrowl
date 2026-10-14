@@ -7,21 +7,19 @@ namespace Xternalsoft\LaravelPatrowl\Requests\Organizations;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
-use Saloon\PaginationPlugin\Contracts\MapPaginatedResponseItems;
-use Saloon\PaginationPlugin\Contracts\Paginatable;
-use Xternalsoft\LaravelPatrowl\Data\OrganizationData;
+use Saloon\Traits\Request\CreatesDtoFromResponse;
+use Xternalsoft\LaravelPatrowl\Data\OrganizationLiteData;
 
-final class GetOrganizationsRequest extends Request implements MapPaginatedResponseItems, Paginatable
+final class GetOrganizationsRequest extends Request
 {
+    use CreatesDtoFromResponse;
+
     protected Method $method = Method::GET;
 
     /**
      * @param  array<string, mixed>  $queryParams
      */
-    public function __construct(
-        protected array $queryParams = [],
-        protected int $limit = 100
-    ) {}
+    public function __construct(protected array $queryParams = []) {}
 
     public function resolveEndpoint(): string
     {
@@ -29,19 +27,11 @@ final class GetOrganizationsRequest extends Request implements MapPaginatedRespo
     }
 
     /**
-     * @return array<int, OrganizationData>
-     */
-    public function mapPaginatedResponseItems(Response $response): array
-    {
-        return array_map(fn (array $item) => OrganizationData::fromApi($item), $response->json('results', []));
-    }
-
-    /**
-     * @return array<int, OrganizationData>
+     * @return array<int, OrganizationLiteData>
      */
     public function createDtoFromResponse(Response $response): array
     {
-        return $this->mapPaginatedResponseItems($response);
+        return array_map(fn (array $item) => OrganizationLiteData::fromApi($item), $response->json());
     }
 
     /**
@@ -49,10 +39,6 @@ final class GetOrganizationsRequest extends Request implements MapPaginatedRespo
      */
     protected function defaultQuery(): array
     {
-        $params = $this->queryParams;
-
-        $params['limit'] = $params['limit'] ?? $this->limit;
-
-        return $params;
+        return $this->queryParams;
     }
 }

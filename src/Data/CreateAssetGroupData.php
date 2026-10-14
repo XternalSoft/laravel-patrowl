@@ -21,7 +21,7 @@ final class CreateAssetGroupData
         /** @var array<int, mixed> */
         public array $suborganizations = [],
         public bool $is_dynamic = false,
-        public ?ComplexityEnum $criticality = null,
+        public ComplexityEnum $criticality = ComplexityEnum::Medium,
         /** @var array<int, mixed> */
         public array $assets = [],
     ) {}
@@ -39,7 +39,7 @@ final class CreateAssetGroupData
             'owners' => $this->owners,
             'suborganizations' => $this->suborganizations,
             'is_dynamic' => $this->is_dynamic,
-            'criticality' => $this->criticality?->value,
+            'criticality' => $this->criticality->value,
             'assets_id' => $this->assets,
         ];
 

@@ -102,9 +102,5 @@ PATROWL_API_TOKEN="your_token_here" php examples/organizations_list.php
 
 #### 15. Get Organization Details
 ```bash
-# Get details for the default organization of the current user
-PATROWL_API_TOKEN="your_token_here" php examples/organizations_get.php
-
-# Or get details for a specific organization by ID
 PATROWL_API_TOKEN="your_token_here" php examples/organizations_get.php <organization_id>
 ```

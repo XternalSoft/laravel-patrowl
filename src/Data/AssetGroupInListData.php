@@ -23,7 +23,9 @@ final class AssetGroupInListData
         public ?string $createdAt = null,
         public ?string $updatedAt = null,
         public ?int $todosCount = null,
-        public ?int $commentsCount = null
+        public ?int $commentsCount = null,
+        /** @var array{critical: int, high: int, medium: int, low: int, info: int}|null */
+        public ?array $vulnsBySeverity = null
     ) {}
 
     /**
@@ -42,7 +44,8 @@ final class AssetGroupInListData
             createdAt: $data['created_at'] ?? null,
             updatedAt: $data['updated_at'] ?? null,
             todosCount: $data['todos_count'] ?? null,
-            commentsCount: $data['comments_count'] ?? null
+            commentsCount: $data['comments_count'] ?? null,
+            vulnsBySeverity: $data['vulns_by_severity'] ?? null
         );
     }
 
@@ -63,6 +66,7 @@ final class AssetGroupInListData
             'updated_at' => $this->updatedAt,
             'todos_count' => $this->todosCount,
             'comments_count' => $this->commentsCount,
+            'vulns_by_severity' => $this->vulnsBySeverity,
         ];
     }
 }

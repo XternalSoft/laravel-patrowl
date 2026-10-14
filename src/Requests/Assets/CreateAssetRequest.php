@@ -12,6 +12,7 @@ use Saloon\Traits\Body\HasJsonBody as HasJsonBodyTrait;
 use Saloon\Traits\Request\CreatesDtoFromResponse;
 use Xternalsoft\LaravelPatrowl\Data\AssetData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
+use Xternalsoft\LaravelPatrowl\Exceptions\AssetAlreadyExistsException;
 use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
 final class CreateAssetRequest extends Request implements HasBody
@@ -34,7 +35,12 @@ final class CreateAssetRequest extends Request implements HasBody
 
     public function createDtoFromResponse(Response $response): AssetData
     {
-        return AssetData::fromApi($response->json());
+        if ($response->status() === 208) {
+            throw new AssetAlreadyExistsException($response);
+        }
+
+        // shortcut: a CIDR value returns {type, asset_group} instead of an asset and is not handled, add support if subnet creation is needed.
+        return AssetData::fromApi($response->json('data'));
     }
 
     /**

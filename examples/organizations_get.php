@@ -11,11 +11,17 @@ $baseUrl = getenv('PATROWL_API_BASE_URL') ?: 'https://dashboard.cloud.patrowl.io
 
 if (! $token) {
     echo "Error: PATROWL_API_TOKEN environment variable is not set.\n";
-    echo "Usage: PATROWL_API_TOKEN=your_token php examples/organizations_get.php [organization_id]\n";
+    echo "Usage: PATROWL_API_TOKEN=your_token php examples/organizations_get.php <organization_id>\n";
     exit(1);
 }
 
 $orgId = isset($argv[1]) ? (int) $argv[1] : null;
+
+if (! $orgId) {
+    echo "Error: Please specify an Organization ID.\n";
+    echo "Usage: PATROWL_API_TOKEN=your_token php examples/organizations_get.php <organization_id>\n";
+    exit(1);
+}
 
 $client = new LaravelPatrowl(
     apiToken: $token,
@@ -23,19 +29,15 @@ $client = new LaravelPatrowl(
 );
 
 try {
-    if ($orgId) {
-        echo "Fetching detailed organization ID: {$orgId}...\n";
-        $org = $client->organizations()->get($orgId);
-    } else {
-        echo "Fetching default organization details...\n";
-        $org = $client->organizations()->default();
-    }
+    echo "Fetching detailed organization ID: {$orgId}...\n";
+    $org = $client->organizations()->get($orgId);
 
     echo "============================================================\n";
     echo "ORGANIZATION DETAILS\n";
     echo "============================================================\n";
     echo "ID:          {$org->identity->id}\n";
     echo "User ID:     {$org->identity->userId}\n";
+    echo 'Tenant ID:   '.($org->identity->tenantId ?? 'N/A')."\n";
     echo "Name:        {$org->identity->name}\n";
     echo "Slug:        {$org->identity->slug}\n";
     echo 'Active:      '.($org->identity->isActive ? 'Yes' : 'No')."\n";

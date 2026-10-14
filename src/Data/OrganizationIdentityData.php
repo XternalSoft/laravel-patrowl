@@ -11,7 +11,8 @@ final class OrganizationIdentityData
         public int $userId,
         public string $name,
         public string $slug,
-        public bool $isActive
+        public bool $isActive,
+        public ?int $tenantId = null
     ) {}
 
     /**
@@ -24,7 +25,8 @@ final class OrganizationIdentityData
             userId: (int) ($data['user_id'] ?? 0),
             name: (string) ($data['name'] ?? ''),
             slug: (string) ($data['slug'] ?? ''),
-            isActive: (bool) ($data['is_active'] ?? false)
+            isActive: (bool) ($data['is_active'] ?? false),
+            tenantId: $data['tenant_id'] ?? null
         );
     }
 
@@ -39,6 +41,7 @@ final class OrganizationIdentityData
             'name' => $this->name,
             'slug' => $this->slug,
             'is_active' => $this->isActive,
+            'tenant_id' => $this->tenantId,
         ];
     }
 }

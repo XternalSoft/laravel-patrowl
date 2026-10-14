@@ -18,7 +18,6 @@ use Xternalsoft\LaravelPatrowl\Requests\Assets\GetAssetRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\GetAssetsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\RefreshAssetScoreRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\RemoveAssetTagFromAssetRequest;
-use Xternalsoft\LaravelPatrowl\Requests\Assets\ReplaceAssetRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\SyncAssetTagsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\UpdateAssetRequest;
 
@@ -43,6 +42,8 @@ final readonly class AssetResource
 
     /**
      * Create a new asset.
+     *
+     * @throws \Xternalsoft\LaravelPatrowl\Exceptions\AssetAlreadyExistsException
      *
      * @see https://developer.patrowl.io/#operation/assets_create
      */
@@ -93,18 +94,6 @@ final readonly class AssetResource
     public function bulkUpdate(array $data): Response
     {
         return $this->connector->send(new BulkUpdateAssetsRequest($data));
-    }
-
-    /**
-     * Replace an asset.
-     *
-     * @param  array<string, mixed>  $data
-     *
-     * @see https://developer.patrowl.io/#operation/assets_update
-     */
-    public function replace(int $id, array $data): AssetData
-    {
-        return $this->connector->send(new ReplaceAssetRequest($id, $data))->dtoOrFail();
     }
 
     /**

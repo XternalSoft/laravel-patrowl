@@ -310,6 +310,8 @@ composer test
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
+Upgrading from v1? See the [upgrade guide](UPGRADE.md).
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.

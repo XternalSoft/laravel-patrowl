@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Xternalsoft\LaravelPatrowl\Resources;
 
-use Saloon\PaginationPlugin\Paginator;
 use Xternalsoft\LaravelPatrowl\Data\OrganizationData;
+use Xternalsoft\LaravelPatrowl\Data\OrganizationLiteData;
 use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
-use Xternalsoft\LaravelPatrowl\Requests\Organizations\GetDefaultOrganizationRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Organizations\GetOrganizationRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Organizations\GetOrganizationsRequest;
 
@@ -16,18 +15,16 @@ final readonly class OrganizationResource
     public function __construct(private LaravelPatrowl $connector) {}
 
     /**
-     * Get all organizations with auto-pagination.
+     * Get all organizations.
      *
      * @param  array<string, mixed>  $queryParams
+     * @return array<int, OrganizationLiteData>
      *
      * @see https://developer.patrowl.io/#operation/orgs_list
      */
-    public function all(array $queryParams = []): Paginator
+    public function all(array $queryParams = []): array
     {
-        return $this->connector->paginate(new GetOrganizationsRequest(
-            $queryParams,
-            $this->connector->getLimit()
-        ));
+        return $this->connector->send(new GetOrganizationsRequest($queryParams))->dtoOrFail();
     }
 
     /**
@@ -38,15 +35,5 @@ final readonly class OrganizationResource
     public function get(int $id): OrganizationData
     {
         return $this->connector->send(new GetOrganizationRequest($id))->dtoOrFail();
-    }
-
-    /**
-     * Get the default organization's details.
-     *
-     * @see https://developer.patrowl.io/#operation/orgs_default_retrieve
-     */
-    public function default(): OrganizationData
-    {
-        return $this->connector->send(new GetDefaultOrganizationRequest())->dtoOrFail();
     }
 }

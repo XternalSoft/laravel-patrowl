@@ -39,7 +39,9 @@ final class AssetInListData
         public ?AssetOutsideBusinessHoursEnum $outsideBusinessHours = null,
         public ?bool $monitoredSlotLocked = null,
         public ?string $ipType = null,
-        public ?RelatedTechnologyData $relatedTechnologies = null
+        /** @var array<int, RelatedTechnologyData>|null */
+        public ?array $relatedTechnologies = null,
+        public ?AssetScreenshotData $thumbnail = null
     ) {}
 
     /**
@@ -69,7 +71,8 @@ final class AssetInListData
             outsideBusinessHours: isset($data['outside_business_hours']) ? AssetOutsideBusinessHoursEnum::from($data['outside_business_hours']) : null,
             monitoredSlotLocked: $data['monitored_slot_locked'] ?? null,
             ipType: $data['ip_type'] ?? null,
-            relatedTechnologies: isset($data['related_technologies']) ? RelatedTechnologyData::fromApi($data['related_technologies']) : null
+            relatedTechnologies: isset($data['related_technologies']) ? array_map(fn (array $tech) => RelatedTechnologyData::fromApi($tech), $data['related_technologies']) : null,
+            thumbnail: isset($data['thumbnail']) ? AssetScreenshotData::fromApi($data['thumbnail']) : null
         );
     }
 
@@ -100,7 +103,8 @@ final class AssetInListData
             'outside_business_hours' => $this->outsideBusinessHours?->value,
             'monitored_slot_locked' => $this->monitoredSlotLocked,
             'ip_type' => $this->ipType,
-            'related_technologies' => $this->relatedTechnologies?->toArray(),
+            'related_technologies' => $this->relatedTechnologies ? array_map(fn (RelatedTechnologyData $tech) => $tech->toArray(), $this->relatedTechnologies) : null,
+            'thumbnail' => $this->thumbnail?->toArray(),
         ];
     }
 }
