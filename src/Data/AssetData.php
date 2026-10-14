@@ -84,9 +84,9 @@ class AssetData
             monitored_slot_lock_until: $data['monitored_slot_lock_until'] ?? null,
             liveness: LivenessEnum::tryFrom($data['liveness'] ?? 'unknown') ?? LivenessEnum::UNKNOWN,
             www_related_domain: isset($data['www_related_domain']) ? DomainLiteData::fromApi($data['www_related_domain']) : null,
-            has_webservers: $data['has_webservers'],
+            has_webservers: $data['has_webservers'] ?? false,
             suborganizations_display: $data['suborganizations_display'] ?? [],
-            ip_state: $data['ip_state']
+            ip_state: $data['ip_state'] ?? null
         );
     }
 
