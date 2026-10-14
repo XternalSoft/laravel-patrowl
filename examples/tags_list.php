@@ -32,20 +32,19 @@ $connector = new LaravelPatrowl(
 echo "--- LISTING TAGS (GET /tags/) ---\n\n";
 
 try {
-    // List all tags with auto-pagination, requesting related fields
-    $paginator = $connector->assetTags()->tags([
-        'related' => true,
-    ]);
+    // List all tags with auto-pagination (each tag includes a preview of its assets, max 6)
+    $paginator = $connector->assetTags()->tags();
 
     $count = 0;
     foreach ($paginator->items() as $tag) {
         /** @var Xternalsoft\LaravelPatrowl\Data\TagData $tag */
         echo sprintf(
-            "[%d] %s (Description: %s, Organization: %d)\n",
+            "[%d] %s (Description: %s, Organization: %d, Assets: %d)\n",
             $tag->id,
             $tag->value,
             $tag->description ?? 'N/A',
-            $tag->organization ?? 0
+            $tag->organization ?? 0,
+            $tag->assetsCount ?? 0
         );
 
         if (! empty($tag->assets)) {

@@ -19,7 +19,8 @@ final class TagData
         public array $assets = [],
         public array $assetGroups = [],
         public ?array $createdBy = null,
-        public ?string $createdAt = null
+        public ?string $createdAt = null,
+        public ?int $assetsCount = null
     ) {}
 
     /**
@@ -35,7 +36,8 @@ final class TagData
             assets: $data['assets'] ?? [],
             assetGroups: $data['asset_groups'] ?? [],
             createdBy: $data['created_by'] ?? null,
-            createdAt: $data['created_at'] ?? null
+            createdAt: $data['created_at'] ?? null,
+            assetsCount: $data['assets_count'] ?? null
         );
     }
 
@@ -53,6 +55,7 @@ final class TagData
             'asset_groups' => $this->assetGroups,
             'created_by' => $this->createdBy,
             'created_at' => $this->createdAt,
+            'assets_count' => $this->assetsCount,
         ];
     }
 }

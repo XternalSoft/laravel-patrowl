@@ -91,6 +91,7 @@ it('can get all tags from /tags/ endpoint', function () {
                     'asset_groups' => [],
                     'created_by' => null,
                     'created_at' => '2023-01-01T00:00:00Z',
+                    'assets_count' => 12,
                 ],
             ],
         ], 200),
@@ -106,7 +107,9 @@ it('can get all tags from /tags/ endpoint', function () {
         ->id->toBe(1)
         ->value->toBe('my-tag')
         ->description->toBe('Some description')
-        ->organization->toBe(1);
+        ->organization->toBe(1)
+        ->assetsCount->toBe(12)
+        ->and($tags[0]->toArray()['assets_count'])->toBe(12);
 });
 
 it('can bulk dissociate asset tags from assets without organization context', function () {
