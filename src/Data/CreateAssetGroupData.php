@@ -6,8 +6,6 @@ namespace Xternalsoft\LaravelPatrowl\Data;
 
 use Xternalsoft\LaravelPatrowl\Enums\ComplexityEnum;
 
-use function config;
-
 final class CreateAssetGroupData
 {
     public function __construct(
@@ -34,7 +32,7 @@ final class CreateAssetGroupData
         $data = [
             'title' => $this->title,
             'description' => $this->description,
-            'organization' => $this->organization ?? config('patrowl.default_organization_id'),
+            'organization' => $this->organization,
             'tags' => $this->tags,
             'owners' => $this->owners,
             'suborganizations' => $this->suborganizations,

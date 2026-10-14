@@ -471,3 +471,18 @@ it('can add a tag to an asset with default organization id', function () {
     expect($response)->toBeInstanceOf(Response::class);
     expect($response->status())->toBe(200);
 });
+
+it('uses the connector default organization id instead of the laravel config', function () {
+    config()->set('patrowl.default_organization_id', 456);
+
+    $mockClient = new MockClient([
+        CreateAssetRequest::class => MockResponse::make(['status' => 'success', 'message' => 'Asset created', 'warnings' => [], 'data' => getFakeAssetData()], 201),
+    ]);
+
+    $connector = new Xternalsoft\LaravelPatrowl\LaravelPatrowl(apiToken: 'fake-token', baseUrl: 'https://patrowl.test', defaultOrganizationId: 789);
+    $connector->withMockClient($mockClient);
+
+    $connector->assets()->create(new CreateAssetData(value: 'asset.com'));
+
+    $mockClient->assertSent(fn (CreateAssetRequest $request) => $request->body()->all()['org_id'] === 789);
+});

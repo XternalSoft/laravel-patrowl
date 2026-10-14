@@ -290,13 +290,6 @@ foreach (LaravelPatrowl::assetTags()->tags(['search' => 'prod'])->items() as $ta
 }
 ```
 
-`all()` and `get()` use `/assets/tags/` and return `AssetTagData` (`id`, `value`, `organization`):
-
-```php
-$assetTags = LaravelPatrowl::assetTags()->all();
-$assetTag = LaravelPatrowl::assetTags()->get($assetTagId);
-```
-
 #### Bulk associate / dissociate tags
 
 ```php

@@ -56,6 +56,20 @@ LaravelPatrowl::assets()->update($id, $data);
 
 `ReplaceAssetRequest` was deleted as well.
 
+#### `assetTags()->all()` and `assetTags()->get()` were removed
+
+`GET /assets/tags/` and `GET /assets/tags/{id}/` no longer exist (the API answers `403` / `404`). Use `assetTags()->tags()` to list the tags of the organization:
+
+```php
+// v1
+LaravelPatrowl::assetTags()->all();
+
+// v2
+LaravelPatrowl::assetTags()->tags();
+```
+
+`GetAssetTagsRequest` and `GetAssetTagRequest` were deleted as well.
+
 #### Set a default organization ID
 
 Many Patrowl endpoints now reject requests that do not target an organization you belong to (HTTP 403 `You do not have permission to perform this action.`). Make sure `PATROWL_DEFAULT_ORGANIZATION_ID` is set to one of the IDs returned by `organizations()->all()`:
