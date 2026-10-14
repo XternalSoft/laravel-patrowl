@@ -253,14 +253,6 @@ if ($response->successful()) {
 }
 ```
 
-#### List Raw Asset Tags
-
-Alternatively, to query the raw tag indices, use:
-
-```php
-$assetTags = LaravelPatrowl::assetTags()->all();
-```
-
 ### Controls
 
 ```php

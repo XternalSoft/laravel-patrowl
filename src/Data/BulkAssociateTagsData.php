@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Xternalsoft\LaravelPatrowl\Data;
 
-use function config;
-
 final class BulkAssociateTagsData
 {
     /**
@@ -26,7 +24,7 @@ final class BulkAssociateTagsData
         $data = [
             'asset_ids' => $this->assetIds,
             'tag_ids' => $this->tagIds,
-            'organization_id' => $this->organizationId ?? config('patrowl.default_organization_id'),
+            'organization_id' => $this->organizationId,
         ];
 
         return array_filter($data, fn ($value) => $value !== null);
