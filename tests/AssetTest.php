@@ -118,7 +118,8 @@ it('can delete an asset', function () {
 
     $response = LaravelPatrowl::assets()->delete(1);
 
-    $mockClient->assertSent(DeleteAssetRequest::class);
+    $mockClient->assertSent(fn (DeleteAssetRequest $request) => $request->resolveEndpoint() === '/assets/delete'
+        && $request->body()->all() === ['assets_id' => [1]]);
     expect($response->status())->toBe(204);
 });
 
@@ -188,7 +189,8 @@ it('can remove a specific asset tag', function () {
 
     $mockClient->assertSent(RemoveAssetTagFromAssetRequest::class);
     $mockClient->assertSent(function (RemoveAssetTagFromAssetRequest $request) {
-        return $request->resolveEndpoint() === '/assets/1/tags/1/';
+        return $request->resolveEndpoint() === '/assets/tags/'
+            && $request->body()->all() === ['asset_ids' => [1], 'tag_ids' => [1]];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -440,8 +442,8 @@ it('can add a tag to an asset', function () {
     $response = LaravelPatrowl::assets()->addTag(1, $data);
 
     $mockClient->assertSent(function (AddTagToAssetRequest $request) {
-        return $request->resolveEndpoint() === '/assets/1/tags/add' &&
-               $request->body()->all() === ['value' => 'my-tag', 'organization' => 1];
+        return $request->resolveEndpoint() === '/tags/' &&
+               $request->body()->all() === ['value' => 'my-tag', 'organization' => 1, 'asset_ids' => [1]];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -465,7 +467,7 @@ it('can add a tag to an asset with default organization id', function () {
     $response = LaravelPatrowl::assets()->addTag(1, $data);
 
     $mockClient->assertSent(function (AddTagToAssetRequest $request) {
-        return $request->body()->all() === ['value' => 'my-tag', 'organization' => 456];
+        return $request->body()->all() === ['value' => 'my-tag', 'organization' => 456, 'asset_ids' => [1]];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
