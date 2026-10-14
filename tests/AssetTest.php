@@ -131,9 +131,11 @@ it('can bulk update assets', function () {
 
     LaravelPatrowl::withMockClient($mockClient);
 
-    $response = LaravelPatrowl::assets()->bulkUpdate(['is_monitored' => true]);
+    $response = LaravelPatrowl::assets()->bulkUpdate(['asset_ids' => [1, 2], 'criticality' => 3]);
 
-    $mockClient->assertSent(BulkUpdateAssetsRequest::class);
+    // The trailing slash matters: without it the API redirects and the PATCH is replayed as a GET.
+    $mockClient->assertSent(fn (BulkUpdateAssetsRequest $request) => $request->resolveEndpoint() === '/assets/'
+        && $request->body()->all() === ['asset_ids' => [1, 2], 'criticality' => 3]);
     expect($response->status())->toBe(200);
 });
 
