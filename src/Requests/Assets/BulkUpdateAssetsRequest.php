@@ -22,7 +22,7 @@ final class BulkUpdateAssetsRequest extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return '/assets';
+        return '/assets/';
     }
 
     /**
