@@ -94,6 +94,18 @@ try {
 
 Creating an asset from a CIDR range (subnet) is not supported by `create()` yet: the API returns an asset group instead of an asset.
 
+#### `CreateAssetData::$suborganizations` was replaced by `$teams`
+
+The API no longer accepts `suborganizations` (nor `org_id`) when creating an asset. The organization is now sent as `organization`, and the asset can be assigned to teams:
+
+```php
+// v1
+new CreateAssetData(value: 'example.com', suborganizations: [3]);
+
+// v2
+new CreateAssetData(value: 'example.com', teams: [3]);
+```
+
 #### `AssetInListData::$relatedTechnologies` is now an array
 
 It used to be a single `RelatedTechnologyData`. It is now `array<int, RelatedTechnologyData>|null`:

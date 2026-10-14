@@ -228,7 +228,7 @@ it('can create an asset', function () {
     $asset = LaravelPatrowl::assets()->create($data);
 
     $mockClient->assertSent(function (CreateAssetRequest $request) {
-        return $request->body()->all()['org_id'] === 1;
+        return $request->body()->all()['organization'] === 1;
     });
 
     expect($asset)
@@ -270,7 +270,7 @@ it('can create an asset with default organization id', function () {
     LaravelPatrowl::assets()->create($data);
 
     $mockClient->assertSent(function (CreateAssetRequest $request) {
-        return $request->body()->all()['org_id'] === 456;
+        return $request->body()->all()['organization'] === 456;
     });
 });
 
@@ -484,5 +484,24 @@ it('uses the connector default organization id instead of the laravel config', f
 
     $connector->assets()->create(new CreateAssetData(value: 'asset.com'));
 
-    $mockClient->assertSent(fn (CreateAssetRequest $request) => $request->body()->all()['org_id'] === 789);
+    $mockClient->assertSent(fn (CreateAssetRequest $request) => $request->body()->all()['organization'] === 789);
+});
+
+it('sends the create asset payload expected by the api', function () {
+    $mockClient = new MockClient([
+        CreateAssetRequest::class => MockResponse::make(['status' => 'success', 'message' => 'Asset created', 'warnings' => [], 'data' => getFakeAssetData()], 201),
+    ]);
+
+    $connector = new Xternalsoft\LaravelPatrowl\LaravelPatrowl(apiToken: 'fake-token', baseUrl: 'https://patrowl.test', defaultOrganizationId: 1);
+    $connector->withMockClient($mockClient);
+
+    $connector->assets()->create(new CreateAssetData(value: 'asset.com', tags: [5], teams: [7]));
+
+    // org_id and suborganizations are rejected by the API ("This field is not supported.")
+    $mockClient->assertSent(function (CreateAssetRequest $request) {
+        $body = $request->body()->all();
+        ksort($body);
+
+        return $body === ['organization' => 1, 'tags' => [5], 'teams' => [7], 'value' => 'asset.com'];
+    });
 });
