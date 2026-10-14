@@ -16,8 +16,7 @@ final class Ipv4Data
         public ?string $type = null,
         public ?bool $inBlocklist = null,
         public mixed $blocklists = null,
-        /** @var array{cdn: ?string, cloud: ?string, saas: ?string, waf: ?string}|null */
-        public ?array $provider = null,
+        public ?Ipv4ProviderData $provider = null,
         public ?string $createdAt = null,
         public ?string $updatedAt = null
     ) {}
@@ -34,7 +33,7 @@ final class Ipv4Data
             type: $data['type'] ?? null,
             inBlocklist: $data['in_blocklist'] ?? null,
             blocklists: $data['blocklists'] ?? null,
-            provider: $data['provider'] ?? null,
+            provider: isset($data['provider']) ? Ipv4ProviderData::fromApi($data['provider']) : null,
             createdAt: $data['created_at'] ?? null,
             updatedAt: $data['updated_at'] ?? null
         );
@@ -52,7 +51,7 @@ final class Ipv4Data
             'type' => $this->type,
             'in_blocklist' => $this->inBlocklist,
             'blocklists' => $this->blocklists,
-            'provider' => $this->provider,
+            'provider' => $this->provider?->toArray(),
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
         ];

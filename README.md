@@ -5,7 +5,13 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/xternalsoft/laravel-patrowl/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/xternalsoft/laravel-patrowl/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/xternalsoft/laravel-patrowl.svg?style=flat-square)](https://packagist.org/packages/xternalsoft/laravel-patrowl)
 
-A clean, fluent, and developer-friendly PHP wrapper for the Patrowl API. This package allows you to easily interact with assets, asset groups, and tags within the Patrowl ecosystem from your Laravel application.
+A clean, fluent, and developer-friendly PHP wrapper for the Patrowl API. This package allows you to easily interact with assets, asset groups, tags, risks, controls, organizations and EASM resources (domains, IPs, services, CVEs…) of the Patrowl platform from your Laravel application.
+
+## Requirements
+
+- PHP 8.4+
+- Laravel 12 or 13
+- A Patrowl API token (Patrowl API 2.38+)
 
 ## Installation
 
@@ -15,16 +21,11 @@ You can install the package via composer:
 composer require xternalsoft/laravel-patrowl
 ```
 
-You can publish and run the migrations with:
+Publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="laravel-patrowl-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
+php artisan patrowl:install
+# or
 php artisan vendor:publish --tag="laravel-patrowl-config"
 ```
 
@@ -34,244 +35,332 @@ This is the contents of the published config file:
 return [
     'api_token' => env('PATROWL_API_TOKEN'),
     'base_url' => env('PATROWL_API_BASE_URL', 'https://dashboard.cloud.patrowl.io/api/auth'),
+    'dashboard_url' => env('PATROWL_DASHBOARD_URL', 'https://dashboard.cloud.patrowl.io'),
     'timeout' => 30,
     'default_organization_id' => env('PATROWL_DEFAULT_ORGANIZATION_ID'),
     'limit' => env('PATROWL_PAGINATION_LIMIT', 100),
 ];
 ```
 
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="laravel-patrowl-views"
-```
 
 ## Usage
 
 ### Configuration
 
-Add your Patrowl API token and base URL to your `.env` file:
+Add your Patrowl settings to your `.env` file:
 
 ```env
 PATROWL_API_TOKEN=your-api-token
 PATROWL_API_BASE_URL=https://dashboard.cloud.patrowl.io/api/auth
 PATROWL_DEFAULT_ORGANIZATION_ID=1
+PATROWL_PAGINATION_LIMIT=100
 ```
 
-### Basic Usage
+| Variable | Description |
+|---|---|
+| `PATROWL_API_TOKEN` | **Required.** Your API token. A `MissingApiTokenException` is thrown when it is missing. |
+| `PATROWL_API_BASE_URL` | API base URL, defaults to the Patrowl cloud. |
+| `PATROWL_DEFAULT_ORGANIZATION_ID` | Organization sent with most requests (`org_id` / `organization`). Many endpoints answer `403` without it: set it to one of the IDs returned by `LaravelPatrowl::organizations()->all()`. |
+| `PATROWL_PAGINATION_LIMIT` | Page size used by auto-paginated lists (default `100`). |
 
-You can use the `LaravelPatrowl` facade to interact with the API:
+### Basic usage
+
+Use the `LaravelPatrowl` facade:
 
 ```php
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
 
-// Get all assets
-$assets = LaravelPatrowl::assets()->all();
-
-foreach ($assets->items() as $asset) {
+foreach (LaravelPatrowl::assets()->all()->items() as $asset) {
     echo $asset->value;
 }
 ```
 
-### Managing Assets
+Outside of Laravel's container (scripts, multiple tokens…), instantiate the connector directly:
 
-#### Create an Asset
+```php
+use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
+
+$patrowl = new LaravelPatrowl(
+    apiToken: 'your-api-token',
+    baseUrl: 'https://dashboard.cloud.patrowl.io/api/auth',
+    defaultOrganizationId: 1, // optional
+    limit: 100,               // optional, page size
+    timeout: 30               // optional, seconds
+);
+
+$asset = $patrowl->assets()->get(42);
+```
+
+### Pagination
+
+Every `all()` method (except `organizations()->all()`) returns a Saloon `Paginator` that fetches the next pages automatically. Iterate over `items()` to get DTOs:
+
+```php
+$paginator = LaravelPatrowl::assets()->all(['search' => 'example']);
+
+foreach ($paginator->items() as $asset) {
+    // AssetInListData
+}
+
+// Or as a Laravel LazyCollection
+$values = $paginator->collect()->map(fn ($asset) => $asset->value);
+```
+
+> Iterating over the paginator itself (`foreach ($paginator as $page)`) yields raw `Response` objects, one per page.
+
+Filters are passed as query parameters (the first argument of `all()`), using the Patrowl API names.
+
+### Error handling
+
+- Methods returning a DTO throw a `LogicException` when the API answers with an error. The original Saloon `RequestException` (with the response) is available via `$e->getPrevious()`.
+- Paginators throw a Saloon `RequestException` (e.g. `ForbiddenException`) when a page fails.
+- Methods returning a `Saloon\Http\Response` (`delete()`, `addTag()`, `syncTags()`…) do not throw: check `$response->successful()` / `$response->failed()`.
+
+```php
+use Saloon\Exceptions\Request\RequestException;
+
+try {
+    $asset = LaravelPatrowl::assets()->get($assetId);
+} catch (LogicException $e) {
+    $previous = $e->getPrevious();
+
+    if ($previous instanceof RequestException) {
+        $status = $previous->getResponse()->status();
+    }
+}
+```
+
+### Assets
+
+#### List and get assets
+
+```php
+// Auto-paginated list of AssetInListData
+foreach (LaravelPatrowl::assets()->all(['type' => 'domain'])->items() as $asset) {
+    echo $asset->value;
+    echo $asset->thumbnail?->url;
+
+    foreach ($asset->relatedTechnologies ?? [] as $technology) {
+        echo "{$technology->vendor} {$technology->product} {$technology->version}";
+    }
+}
+
+// AssetData in detail (owners, tags, groups, screenshot...)
+$asset = LaravelPatrowl::assets()->get($assetId);
+
+echo $asset->criticality->name;
+echo $asset->screenshot?->url;
+```
+
+#### Create an asset
 
 ```php
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
+use Xternalsoft\LaravelPatrowl\Enums\ComplexityEnum;
+use Xternalsoft\LaravelPatrowl\Exceptions\AssetAlreadyExistsException;
 
 $data = new CreateAssetData(
     value: 'example.com',
+    organization: 1, // defaults to PATROWL_DEFAULT_ORGANIZATION_ID
     description: 'My new asset',
-    organization: 1
+    criticality: ComplexityEnum::High,
+    tags: [12, 34],
+    owners: [5]
 );
 
-$asset = LaravelPatrowl::assets()->create($data);
+try {
+    $asset = LaravelPatrowl::assets()->create($data);
+} catch (AssetAlreadyExistsException $e) {
+    $existingAssetId = $e->response->json('data.id');
+}
 ```
 
-#### Add a Tag to an Asset
+> Creating an asset from a CIDR range (subnet) is not supported yet: the API returns an asset group instead of an asset.
+
+#### Update and delete an asset
+
+```php
+// Partial update (PATCH), returns the updated AssetData
+$asset = LaravelPatrowl::assets()->update($assetId, [
+    'description' => 'Updated description',
+    'criticality' => 3,
+]);
+
+// Update the criticality of several assets at once
+$response = LaravelPatrowl::assets()->bulkUpdate([
+    'asset_ids' => [1, 2, 3],
+    'criticality' => 2,
+]);
+
+// Delete
+$response = LaravelPatrowl::assets()->delete($assetId);
+
+// Recompute the asset score
+$response = LaravelPatrowl::assets()->refreshScore($assetId);
+```
+
+#### Manage asset tags
 
 ```php
 use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 
-$data = new AddTagToAssetData(
+// Add a tag (created if it does not exist)
+$response = LaravelPatrowl::assets()->addTag($assetId, new AddTagToAssetData(
     value: 'production',
     organization: 1
-);
+));
 
-$response = LaravelPatrowl::assets()->addTag($assetId, $data);
+// Replace all the tags of an asset by a list of tag IDs (an empty array removes all tags)
+$response = LaravelPatrowl::assets()->syncTags($assetId, [12, 34]);
 
-if ($response->successful()) {
-    // Tag added successfully
-}
-```
-
-#### Remove a Tag from an Asset
-
-```php
+// Remove one tag
 $response = LaravelPatrowl::assets()->removeTag($assetId, $tagId);
 ```
 
-### Risks
+### Asset groups
 
-#### List and Get Risks
-
-```php
-// List all risks
-$risks = LaravelPatrowl::risks()->all();
-
-foreach ($risks->items() as $risk) {
-    echo $risk->title . ' (' . $risk->severity->name . ')';
-}
-
-// Get a specific risk
-$risk = LaravelPatrowl::risks()->get($riskId);
-```
-
-#### Export Risks to CSV
+#### List and get asset groups
 
 ```php
-// Export all risks to CSV format
-$csvContent = LaravelPatrowl::risks()->exportCsv();
-
-file_put_contents('risks_export.csv', $csvContent);
-```
-
-#### List Risk Topics and Subtopics
-
-```php
-// List all risk topics
-$topics = LaravelPatrowl::risks()->topics();
-
-foreach ($topics->items() as $topic) {
-    echo $topic->title . ' (' . $topic->slug . ')';
+// Auto-paginated list of AssetGroupInListData
+foreach (LaravelPatrowl::assetGroups()->all()->items() as $group) {
+    echo $group->title;
+    echo $group->vulnsBySeverity['critical'] ?? 0;
 }
 
-// List all risk subtopics
-$subtopics = LaravelPatrowl::risks()->subtopics();
+// AssetGroupData in detail
+$group = LaravelPatrowl::assetGroups()->get($groupId);
 
-foreach ($subtopics->items() as $subtopic) {
-    echo $subtopic->title . ' (' . $subtopic->slug . ')';
-}
+echo $group->counts['assets'] ?? 0;
 ```
 
-### Asset Groups
-
-#### Create an Asset Group
+#### Create an asset group
 
 ```php
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetGroupData;
+use Xternalsoft\LaravelPatrowl\Enums\ComplexityEnum;
 
-$data = new CreateAssetGroupData(
+$group = LaravelPatrowl::assetGroups()->create(new CreateAssetGroupData(
     title: 'My Production Assets',
     description: 'Assets in production environment',
-    organization: 1,
-    assets: [123, 456] // List of asset IDs to add after creation
-);
-
-$group = LaravelPatrowl::assetGroups()->create($data);
+    organization: 1, // defaults to PATROWL_DEFAULT_ORGANIZATION_ID
+    criticality: ComplexityEnum::High, // required by the API, defaults to Medium
+    assets: [123, 456] // added right after creation
+));
 ```
 
-#### List and Get Asset Groups
+#### Update and delete an asset group
 
 ```php
-// List all asset groups
-$groups = LaravelPatrowl::assetGroups()->all();
+// Partial update (PATCH), returns the updated AssetGroupData
+$group = LaravelPatrowl::assetGroups()->update($groupId, [
+    'title' => 'Renamed group',
+]);
 
-// Get a specific group
-$group = LaravelPatrowl::assetGroups()->get($groupId);
+$response = LaravelPatrowl::assetGroups()->delete($groupId);
 ```
 
-#### Add a Tag to an Asset Group
+#### Manage the assets and tags of a group
 
 ```php
 use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 
-$data = new AddTagToAssetData(
+$response = LaravelPatrowl::assetGroups()->addAssets($groupId, [123, 456]);
+$response = LaravelPatrowl::assetGroups()->removeAssets($groupId, [456]);
+
+$response = LaravelPatrowl::assetGroups()->addTag($groupId, new AddTagToAssetData(
     value: 'critical-infrastructure',
     organization: 1
-);
-
-$response = LaravelPatrowl::assetGroups()->addTag($groupId, $data);
+));
 ```
 
-### Asset Tags
+### Tags
 
-#### List Tags
+#### List tags
 
-To retrieve a paginated, filterable list of all tags, use the `tags` method. Passing `'related' => true` returns complete related asset and asset group data:
+`tags()` lists the tags of the organization (`TagData`) with a preview of their linked assets and asset groups:
 
 ```php
-// List all available tags with complete related data
-$tags = LaravelPatrowl::assetTags()->tags([
-    'related' => true,
-]);
-
-foreach ($tags as $tag) {
+foreach (LaravelPatrowl::assetTags()->tags(['search' => 'prod'])->items() as $tag) {
     echo $tag->value;
-    echo $tag->description;
-    
-    // View linked assets
+
     foreach ($tag->assets as $asset) {
         echo $asset['value'];
     }
 }
 ```
 
-#### Bulk Associate Tags with Assets
+`all()` and `get()` use `/assets/tags/` and return `AssetTagData` (`id`, `value`, `organization`):
 
-To bulk associate multiple tags with multiple assets across an organization:
+```php
+$assetTags = LaravelPatrowl::assetTags()->all();
+$assetTag = LaravelPatrowl::assetTags()->get($assetTagId);
+```
+
+#### Bulk associate / dissociate tags
 
 ```php
 use Xternalsoft\LaravelPatrowl\Data\BulkAssociateTagsData;
 
-$bulkData = new BulkAssociateTagsData(
+$response = LaravelPatrowl::assetTags()->associate(new BulkAssociateTagsData(
     assetIds: [2635579],
     tagIds: [4241],
-    organizationId: 1815
-);
+    organizationId: 1815 // defaults to PATROWL_DEFAULT_ORGANIZATION_ID
+));
 
-$response = LaravelPatrowl::assetTags()->associate($bulkData);
+echo $response->json('message'); // "Associated 1 tags with 1 assets."
 
-if ($response->successful()) {
-    echo $response->json('message'); // "Associated 1 tags with 1 assets."
-}
-```
-
-#### Bulk Dissociate Tags from Assets
-
-To bulk dissociate multiple tags from multiple assets (DELETE `/assets/tags/`):
-
-```php
 $response = LaravelPatrowl::assetTags()->dissociate(
     assetIds: [2635579],
     tagIds: [4241]
 );
 
-if ($response->successful()) {
-    echo $response->json('message'); // "Dissociated 1 tags from 1 assets."
-}
+echo $response->json('message'); // "Dissociated 1 tags from 1 assets."
 ```
 
-#### List Raw Asset Tags
-
-Alternatively, to query the raw tag indices, use:
+### Risks
 
 ```php
-$assetTags = LaravelPatrowl::assetTags()->all();
+// Auto-paginated list of RiskInListData
+foreach (LaravelPatrowl::risks()->all(['severity' => 4])->items() as $risk) {
+    echo $risk->title.' ('.$risk->severity->name.')';
+}
+
+// RiskData in detail
+$risk = LaravelPatrowl::risks()->get($riskId);
+
+// Export to CSV (org_id is required by the API)
+file_put_contents('risks.csv', LaravelPatrowl::risks()->exportCsv());
+
+// Topics and subtopics
+foreach (LaravelPatrowl::risks()->topics()->items() as $topic) {
+    echo $topic->title.' ('.$topic->slug.')';
+}
+
+foreach (LaravelPatrowl::risks()->subtopics()->items() as $subtopic) {
+    echo $subtopic->title.' ('.$subtopic->slug.')';
+}
 ```
 
 ### Controls
 
 ```php
-// List all controls with auto-pagination
-$controls = LaravelPatrowl::controls()->all();
+use Xternalsoft\LaravelPatrowl\Enums\ControlResultEnum;
+use Xternalsoft\LaravelPatrowl\Enums\ControlStatusEnum;
 
-foreach ($controls as $control) {
-    echo $control->title;
+// Auto-paginated list of ControlLiteData, filtered
+$controls = LaravelPatrowl::controls()->all([
+    'severity' => 'critical',
+    'status' => ControlStatusEnum::Finished->value,
+]);
+
+foreach ($controls->items() as $control) {
+    if ($control->result === ControlResultEnum::Impacted) {
+        // Handle impacted asset controls
+    }
 }
 
-// Get a specific control in detail (including impacted assets and vulnerabilities)
+// ControlData in detail (impacted assets and vulnerabilities)
 $control = LaravelPatrowl::controls()->get($controlId);
 
 foreach ($control->assetsImpacted as $asset) {
@@ -279,64 +368,100 @@ foreach ($control->assetsImpacted as $asset) {
 }
 ```
 
-#### Filtering Controls
-
-You can filter controls and utilize the built-in integer-backed enums:
+### Organizations
 
 ```php
-use Xternalsoft\LaravelPatrowl\Enums\ControlStatusEnum;
-use Xternalsoft\LaravelPatrowl\Enums\ControlResultEnum;
-
-// Filter controls by severity and status
-$controls = LaravelPatrowl::controls()->all([
-    'severity' => 'critical',
-    'status' => ControlStatusEnum::Finished->value,
-]);
-
-foreach ($controls as $control) {
-    if ($control->result === ControlResultEnum::Impacted) {
-        // Handle impacted asset controls
-    }
+// The organizations you belong to (OrganizationLiteData: id, name, slug, tenantId, tenantName).
+// Not paginated: returns an array.
+foreach (LaravelPatrowl::organizations()->all() as $organization) {
+    echo "{$organization->id}: {$organization->name} ({$organization->tenantName})";
 }
+
+// OrganizationData in detail (identity, members, profile, features, credits, monitoring)
+$organization = LaravelPatrowl::organizations()->get($organizationId);
+
+echo $organization->credits->easm->available;
 ```
 
 ### EASM (Attack Surface Management)
 
-Every EASM resource exposes the same read API: `all()` (auto-paginated, returns typed DTOs from `Xternalsoft\LaravelPatrowl\Data\Easm`) and `get()`.
+Every EASM resource exposes the same read API: `all()` (auto-paginated) and `get()`. DTOs live in `Xternalsoft\LaravelPatrowl\Data\Easm` and match the API payloads exactly, including nested objects.
 
-| Method | Endpoint | DTO |
-|---|---|---|
-| `domains()` | `/domains` | `DomainData` |
-| `ipv4s()` | `/ipv4s` | `Ipv4Data` |
-| `resolutions()` | `/resolutions` | `ResolutionData` |
-| `asns()` | `/asns` | `AsnData` |
-| `services()` | `/services` | `ServiceData` |
-| `webServers()` | `/webservers` | `WebServerData` |
-| `certificates()` | `/certificates` | `CertificateData` |
-| `vendors()` | `/vendors` | `VendorData` |
-| `products()` | `/products` | `ProductData` |
-| `technologies()` | `/technologies` | `TechnologyData` |
-| `technologyDetections()` | `/technology-detections` | `TechnologyDetectionData` |
-| `cves()` | `/cves` | `CveData` |
+| Method | Endpoint | `all()` DTO | `get()` DTO |
+|---|---|---|---|
+| `domains()` | `/domains` | `DomainData` | `DomainData` |
+| `ipv4s()` | `/ipv4s` | `Ipv4Data` | `Ipv4Data` |
+| `resolutions()` | `/resolutions` | `ResolutionData` | `ResolutionData` |
+| `asns()` | `/asns` | `AsnData` | `AsnData` |
+| `services()` | `/services` | `ServiceData` | `ServiceDetailData` (with `banner`) |
+| `webServers()` | `/webservers` | `WebServerData` | `WebServerData` |
+| `certificates()` | `/certificates` | `CertificateData` | `CertificateData` |
+| `vendors()` | `/vendors` | `VendorData` | `VendorData` |
+| `products()` | `/products` | `ProductData` | `ProductData` |
+| `technologies()` | `/technologies` | `TechnologyData` | `TechnologyData` |
+| `technologyDetections()` | `/technology-detections` | `TechnologyDetectionData` | `TechnologyDetectionData` |
+| `cves()` | `/cves` | `CveData` | `CveDetailData` (per-version CVSS, EPSS, exploits) |
 
 ```php
-// List apex domains, filters are passed as query parameters
+// Apex domains only, filters are passed as query parameters
 foreach (LaravelPatrowl::domains()->all(['is_top_domain' => true])->items() as $domain) {
     echo $domain->value;
+
+    foreach ($domain->dnsRecords as $record) {
+        echo "{$record->recordType} {$record->value}";
+    }
 }
 
-// Get a service in detail (includes the banner)
-$service = LaravelPatrowl::services()->get($serviceId);
+// Open TCP services, with their certificate and web servers
+foreach (LaravelPatrowl::services()->all(['state' => 'open', 'protocol' => 'tcp'])->items() as $service) {
+    echo "{$service->value}:{$service->portNumber}";
+    echo $service->certificate?->isExpired ? 'expired certificate' : '';
 
-// CVEs are cursor paginated and retrieved by identifier
+    foreach ($service->webservers as $webServer) {
+        echo $webServer->url;
+    }
+}
+
+$service = LaravelPatrowl::services()->get($serviceId);
+echo $service->banner;
+```
+
+CVEs are cursor paginated (handled transparently) and retrieved by identifier:
+
+```php
 foreach (LaravelPatrowl::cves()->all(['severity' => 'critical,high', 'is_kev' => true])->items() as $cve) {
-    echo $cve->identifier;
+    echo "{$cve->identifier} {$cve->cvss?->score}";
 }
 
 $cve = LaravelPatrowl::cves()->get('CVE-2026-12345');
+
+if ($cve->threatInfo?->isKev) {
+    foreach ($cve->exploits as $exploit) {
+        echo $exploit->reference;
+    }
+}
 ```
 
 The default organization ID is sent as `org_id` when configured. Vendors and products are global catalogs and ignore it.
+
+### Testing your code
+
+The connector uses Saloon, so you can fake the API in your own tests:
+
+```php
+use Saloon\Http\Faking\MockClient;
+use Saloon\Http\Faking\MockResponse;
+use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
+use Xternalsoft\LaravelPatrowl\Requests\Assets\GetAssetRequest;
+
+LaravelPatrowl::withMockClient(new MockClient([
+    GetAssetRequest::class => MockResponse::make(['id' => 1, 'value' => 'example.com', /* ... */]),
+]));
+```
+
+### Examples
+
+Runnable scripts for every resource are available in the [`examples`](examples/README.md) directory.
 
 ## Testing
 

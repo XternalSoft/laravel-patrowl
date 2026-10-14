@@ -11,8 +11,7 @@ final class TechnologyData
 {
     public function __construct(
         public int $id,
-        /** @var array{id: int, name: string, vendor: array{id: int, name: string}}|null */
-        public ?array $product = null,
+        public ?ProductInTechnologyData $product = null,
         public ?string $version = null,
         public ?string $partialCpe = null,
         public ?string $createdAt = null,
@@ -26,7 +25,7 @@ final class TechnologyData
     {
         return new self(
             id: $data['id'],
-            product: $data['product'] ?? null,
+            product: isset($data['product']) ? ProductInTechnologyData::fromApi($data['product']) : null,
             version: $data['version'] ?? null,
             partialCpe: $data['partial_cpe'] ?? null,
             createdAt: $data['created_at'] ?? null,
@@ -41,7 +40,7 @@ final class TechnologyData
     {
         return [
             'id' => $this->id,
-            'product' => $this->product,
+            'product' => $this->product?->toArray(),
             'version' => $this->version,
             'partial_cpe' => $this->partialCpe,
             'created_at' => $this->createdAt,

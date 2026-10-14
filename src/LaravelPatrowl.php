@@ -14,11 +14,13 @@ use Saloon\Traits\Plugins\AcceptsJson;
 use Xternalsoft\LaravelPatrowl\Data\Easm\AsnData;
 use Xternalsoft\LaravelPatrowl\Data\Easm\CertificateData;
 use Xternalsoft\LaravelPatrowl\Data\Easm\CveData;
+use Xternalsoft\LaravelPatrowl\Data\Easm\CveDetailData;
 use Xternalsoft\LaravelPatrowl\Data\Easm\DomainData;
 use Xternalsoft\LaravelPatrowl\Data\Easm\Ipv4Data;
 use Xternalsoft\LaravelPatrowl\Data\Easm\ProductData;
 use Xternalsoft\LaravelPatrowl\Data\Easm\ResolutionData;
 use Xternalsoft\LaravelPatrowl\Data\Easm\ServiceData;
+use Xternalsoft\LaravelPatrowl\Data\Easm\ServiceDetailData;
 use Xternalsoft\LaravelPatrowl\Data\Easm\TechnologyData;
 use Xternalsoft\LaravelPatrowl\Data\Easm\TechnologyDetectionData;
 use Xternalsoft\LaravelPatrowl\Data\Easm\VendorData;
@@ -92,121 +94,121 @@ final class LaravelPatrowl extends Connector implements HasPagination
     /**
      * Domains (and subdomains) discovered on the attack surface.
      *
-     * @return EasmResource<DomainData>
+     * @return EasmResource<DomainData, DomainData>
      */
     public function domains(): EasmResource
     {
-        return new EasmResource($this, '/domains', DomainData::fromApi(...));
+        return new EasmResource($this, '/domains', DomainData::fromApi(...), DomainData::fromApi(...));
     }
 
     /**
      * IPv4 addresses, owned or contextualized.
      *
-     * @return EasmResource<Ipv4Data>
+     * @return EasmResource<Ipv4Data, Ipv4Data>
      */
     public function ipv4s(): EasmResource
     {
-        return new EasmResource($this, '/ipv4s', Ipv4Data::fromApi(...));
+        return new EasmResource($this, '/ipv4s', Ipv4Data::fromApi(...), Ipv4Data::fromApi(...));
     }
 
     /**
      * Domain to IPv4 resolutions seen in the last 90 days.
      *
-     * @return EasmResource<ResolutionData>
+     * @return EasmResource<ResolutionData, ResolutionData>
      */
     public function resolutions(): EasmResource
     {
-        return new EasmResource($this, '/resolutions', ResolutionData::fromApi(...));
+        return new EasmResource($this, '/resolutions', ResolutionData::fromApi(...), ResolutionData::fromApi(...));
     }
 
     /**
      * Autonomous systems of the assets IPv4 addresses.
      *
-     * @return EasmResource<AsnData>
+     * @return EasmResource<AsnData, AsnData>
      */
     public function asns(): EasmResource
     {
-        return new EasmResource($this, '/asns', AsnData::fromApi(...));
+        return new EasmResource($this, '/asns', AsnData::fromApi(...), AsnData::fromApi(...));
     }
 
     /**
      * Network services (open ports) detected on assets.
      *
-     * @return EasmResource<ServiceData>
+     * @return EasmResource<ServiceData, ServiceDetailData>
      */
     public function services(): EasmResource
     {
-        return new EasmResource($this, '/services', ServiceData::fromApi(...));
+        return new EasmResource($this, '/services', ServiceData::fromApi(...), ServiceDetailData::fromApi(...));
     }
 
     /**
      * Web servers detected on exposed services.
      *
-     * @return EasmResource<WebServerData>
+     * @return EasmResource<WebServerData, WebServerData>
      */
     public function webServers(): EasmResource
     {
-        return new EasmResource($this, '/webservers', WebServerData::fromApi(...));
+        return new EasmResource($this, '/webservers', WebServerData::fromApi(...), WebServerData::fromApi(...));
     }
 
     /**
      * TLS certificates detected on services.
      *
-     * @return EasmResource<CertificateData>
+     * @return EasmResource<CertificateData, CertificateData>
      */
     public function certificates(): EasmResource
     {
-        return new EasmResource($this, '/certificates', CertificateData::fromApi(...));
+        return new EasmResource($this, '/certificates', CertificateData::fromApi(...), CertificateData::fromApi(...));
     }
 
     /**
      * Vendors catalog of detected technologies.
      *
-     * @return EasmResource<VendorData>
+     * @return EasmResource<VendorData, VendorData>
      */
     public function vendors(): EasmResource
     {
-        return new EasmResource($this, '/vendors', VendorData::fromApi(...));
+        return new EasmResource($this, '/vendors', VendorData::fromApi(...), VendorData::fromApi(...));
     }
 
     /**
      * Products catalog of detected technologies.
      *
-     * @return EasmResource<ProductData>
+     * @return EasmResource<ProductData, ProductData>
      */
     public function products(): EasmResource
     {
-        return new EasmResource($this, '/products', ProductData::fromApi(...));
+        return new EasmResource($this, '/products', ProductData::fromApi(...), ProductData::fromApi(...));
     }
 
     /**
      * Distinct product/version combinations detected on assets.
      *
-     * @return EasmResource<TechnologyData>
+     * @return EasmResource<TechnologyData, TechnologyData>
      */
     public function technologies(): EasmResource
     {
-        return new EasmResource($this, '/technologies', TechnologyData::fromApi(...));
+        return new EasmResource($this, '/technologies', TechnologyData::fromApi(...), TechnologyData::fromApi(...));
     }
 
     /**
      * Individual technology detections (asset, service, when).
      *
-     * @return EasmResource<TechnologyDetectionData>
+     * @return EasmResource<TechnologyDetectionData, TechnologyDetectionData>
      */
     public function technologyDetections(): EasmResource
     {
-        return new EasmResource($this, '/technology-detections', TechnologyDetectionData::fromApi(...));
+        return new EasmResource($this, '/technology-detections', TechnologyDetectionData::fromApi(...), TechnologyDetectionData::fromApi(...));
     }
 
     /**
      * CVEs catalog, cursor paginated, retrieved by identifier (e.g. `CVE-2026-12345`).
      *
-     * @return EasmResource<CveData>
+     * @return EasmResource<CveData, CveDetailData>
      */
     public function cves(): EasmResource
     {
-        return new EasmResource($this, '/cves', CveData::fromApi(...), usesCursorPagination: true);
+        return new EasmResource($this, '/cves', CveData::fromApi(...), CveDetailData::fromApi(...), usesCursorPagination: true);
     }
 
     public function getDefaultOrganizationId(): ?int

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Xternalsoft\LaravelPatrowl\Data\Easm;
 
 /**
- * A network service (open port) detected on a scanned asset. `banner` is only filled on detail.
+ * A network service (open port) detected on a scanned asset, as returned by the list.
  */
 final class ServiceData
 {
@@ -19,12 +19,10 @@ final class ServiceData
         public ?string $state = null,
         public ?bool $isSsl = null,
         public ?bool $hasBanner = null,
-        /** @var array{id: int, serial_number: string, is_expired: bool, is_mismatched: bool, is_selfsigned: bool}|null */
-        public ?array $certificate = null,
-        /** @var array<int, array{id: int, url: string, server: string, title: string, path: string, jarm: string}> */
+        public ?CertificateInServiceData $certificate = null,
+        /** @var array<int, WebServerInServiceData> */
         public array $webservers = [],
         public ?string $lastSeen = null,
-        public ?string $banner = null,
         public ?string $createdAt = null,
         public ?string $updatedAt = null
     ) {}
@@ -44,10 +42,9 @@ final class ServiceData
             state: $data['state'] ?? null,
             isSsl: $data['is_ssl'] ?? null,
             hasBanner: $data['has_banner'] ?? null,
-            certificate: $data['certificate'] ?? null,
-            webservers: $data['webservers'] ?? [],
+            certificate: isset($data['certificate']) ? CertificateInServiceData::fromApi($data['certificate']) : null,
+            webservers: array_map(fn (array $item) => WebServerInServiceData::fromApi($item), $data['webservers'] ?? []),
             lastSeen: $data['last_seen'] ?? null,
-            banner: $data['banner'] ?? null,
             createdAt: $data['created_at'] ?? null,
             updatedAt: $data['updated_at'] ?? null
         );
@@ -68,10 +65,9 @@ final class ServiceData
             'state' => $this->state,
             'is_ssl' => $this->isSsl,
             'has_banner' => $this->hasBanner,
-            'certificate' => $this->certificate,
-            'webservers' => $this->webservers,
+            'certificate' => $this->certificate?->toArray(),
+            'webservers' => array_map(fn (WebServerInServiceData $item) => $item->toArray(), $this->webservers),
             'last_seen' => $this->lastSeen,
-            'banner' => $this->banner,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
         ];

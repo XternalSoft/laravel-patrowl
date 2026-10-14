@@ -12,8 +12,7 @@ final class WebServerData
     public function __construct(
         public int $id,
         public ?string $value = null,
-        /** @var array{id: int, port_number: int, protocol: string, is_ssl: bool, state: string}|null */
-        public ?array $service = null,
+        public ?WebServerServiceData $service = null,
         public ?string $url = null,
         public ?string $server = null,
         public ?string $path = null,
@@ -36,7 +35,7 @@ final class WebServerData
         return new self(
             id: $data['id'],
             value: $data['value'] ?? null,
-            service: $data['service'] ?? null,
+            service: isset($data['service']) ? WebServerServiceData::fromApi($data['service']) : null,
             url: $data['url'] ?? null,
             server: $data['server'] ?? null,
             path: $data['path'] ?? null,
@@ -60,7 +59,7 @@ final class WebServerData
         return [
             'id' => $this->id,
             'value' => $this->value,
-            'service' => $this->service,
+            'service' => $this->service?->toArray(),
             'url' => $this->url,
             'server' => $this->server,
             'path' => $this->path,

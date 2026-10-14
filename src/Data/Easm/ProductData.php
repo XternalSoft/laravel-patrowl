@@ -11,8 +11,7 @@ final class ProductData
 {
     public function __construct(
         public int $id,
-        /** @var array{id: int, name: string}|null */
-        public ?array $vendor = null,
+        public ?VendorInProductData $vendor = null,
         public ?string $name = null,
         public ?string $type = null,
         public ?string $partialCpe = null,
@@ -27,7 +26,7 @@ final class ProductData
     {
         return new self(
             id: $data['id'],
-            vendor: $data['vendor'] ?? null,
+            vendor: isset($data['vendor']) ? VendorInProductData::fromApi($data['vendor']) : null,
             name: $data['name'] ?? null,
             type: $data['type'] ?? null,
             partialCpe: $data['partial_cpe'] ?? null,
@@ -43,7 +42,7 @@ final class ProductData
     {
         return [
             'id' => $this->id,
-            'vendor' => $this->vendor,
+            'vendor' => $this->vendor?->toArray(),
             'name' => $this->name,
             'type' => $this->type,
             'partial_cpe' => $this->partialCpe,

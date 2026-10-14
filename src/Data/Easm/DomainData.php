@@ -27,7 +27,7 @@ final class DomainData
         public array $registrantCountry = [],
         /** @var array<int, string> */
         public array $registrantStateProvince = [],
-        /** @var array<int, array{record_type: string, value: string}> */
+        /** @var array<int, DnsRecordData> */
         public array $dnsRecords = [],
         /** @var array<int, string> */
         public array $creationDates = [],
@@ -60,7 +60,7 @@ final class DomainData
             registrantName: $data['registrant_name'] ?? [],
             registrantCountry: $data['registrant_country'] ?? [],
             registrantStateProvince: $data['registrant_state_province'] ?? [],
-            dnsRecords: $data['dnsrecords'] ?? [],
+            dnsRecords: array_map(fn (array $item) => DnsRecordData::fromApi($item), $data['dnsrecords'] ?? []),
             creationDates: $data['creation_dates'] ?? [],
             updatedDates: $data['updated_dates'] ?? [],
             expirationDates: $data['expiration_dates'] ?? [],
@@ -89,7 +89,7 @@ final class DomainData
             'registrant_name' => $this->registrantName,
             'registrant_country' => $this->registrantCountry,
             'registrant_state_province' => $this->registrantStateProvince,
-            'dnsrecords' => $this->dnsRecords,
+            'dnsrecords' => array_map(fn (DnsRecordData $item) => $item->toArray(), $this->dnsRecords),
             'creation_dates' => $this->creationDates,
             'updated_dates' => $this->updatedDates,
             'expiration_dates' => $this->expirationDates,

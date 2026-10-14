@@ -15,16 +15,19 @@ use Xternalsoft\LaravelPatrowl\Requests\Easm\ListEasmRequest;
  * Read access to an EASM resource (domains, ipv4s, services, CVEs, ...).
  *
  * @template TData of object
+ * @template TDetail of object
  */
 final readonly class EasmResource
 {
     /**
-     * @param  Closure(array<string, mixed>): TData  $mapper
+     * @param  Closure(array<string, mixed>): TData  $mapper  maps a list item
+     * @param  Closure(array<string, mixed>): TDetail  $detailMapper  maps the detail payload
      */
     public function __construct(
         private LaravelPatrowl $connector,
         private string $endpoint,
         private Closure $mapper,
+        private Closure $detailMapper,
         private bool $usesCursorPagination = false
     ) {}
 
@@ -51,10 +54,10 @@ final readonly class EasmResource
     /**
      * Get a single item by its ID (or identifier for CVEs, e.g. `CVE-2026-12345`).
      *
-     * @return TData
+     * @return TDetail
      */
     public function get(int|string $id): object
     {
-        return $this->connector->send(new GetEasmRequest($this->endpoint, $id, $this->mapper))->dtoOrFail();
+        return $this->connector->send(new GetEasmRequest($this->endpoint, $id, $this->detailMapper))->dtoOrFail();
     }
 }

@@ -11,10 +11,8 @@ final class ResolutionData
 {
     public function __construct(
         public int $id,
-        /** @var array{id: int, value: string}|null */
-        public ?array $domain = null,
-        /** @var array{id: int, value: string, type: string}|null */
-        public ?array $ipv4 = null,
+        public ?DomainInResolutionData $domain = null,
+        public ?Ipv4InResolutionData $ipv4 = null,
         public ?string $firstResolvedAt = null,
         public ?string $lastResolvedAt = null,
         public ?bool $resolves = null,
@@ -29,8 +27,8 @@ final class ResolutionData
     {
         return new self(
             id: $data['id'],
-            domain: $data['domain'] ?? null,
-            ipv4: $data['ipv4'] ?? null,
+            domain: isset($data['domain']) ? DomainInResolutionData::fromApi($data['domain']) : null,
+            ipv4: isset($data['ipv4']) ? Ipv4InResolutionData::fromApi($data['ipv4']) : null,
             firstResolvedAt: $data['first_resolved_at'] ?? null,
             lastResolvedAt: $data['last_resolved_at'] ?? null,
             resolves: $data['resolves'] ?? null,
@@ -46,8 +44,8 @@ final class ResolutionData
     {
         return [
             'id' => $this->id,
-            'domain' => $this->domain,
-            'ipv4' => $this->ipv4,
+            'domain' => $this->domain?->toArray(),
+            'ipv4' => $this->ipv4?->toArray(),
             'first_resolved_at' => $this->firstResolvedAt,
             'last_resolved_at' => $this->lastResolvedAt,
             'resolves' => $this->resolves,

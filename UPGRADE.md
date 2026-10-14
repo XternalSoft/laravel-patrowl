@@ -4,6 +4,8 @@
 
 v2 aligns the package with Patrowl API **2.36 → 2.38**. Several endpoints were removed or reshaped by Patrowl, so a few package methods changed accordingly.
 
+v2 also adds read access to the new EASM endpoints (`domains()`, `ipv4s()`, `services()`, `cves()`…). They are additions only and need no migration, see the EASM section of the [README](README.md).
+
 ### High impact
 
 #### `organizations()->default()` was removed
