@@ -48,6 +48,16 @@ PATROWL_API_TOKEN="your_token_here" php examples/controls_warning_list.php
 PATROWL_API_TOKEN="your_token_here" php examples/controls_recent_list.php
 ```
 
+#### 7. List Assets of a Control (Impacted / Warning)
+```bash
+PATROWL_API_TOKEN="your_token_here" PATROWL_DEFAULT_ORGANIZATION_ID=<org_id> php examples/controls_assets_list.php <control_id>
+```
+
+#### 8. Warning Controls and their Assets, for every Organization
+```bash
+PATROWL_API_TOKEN="your_token_here" php examples/controls_warning_by_organization.php
+```
+
 ### Risks Examples
 
 These examples showcase risk and vulnerability management:

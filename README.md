@@ -266,8 +266,11 @@ foreach ($controls as $control) {
 // Get a specific control in detail (including impacted assets and vulnerabilities)
 $control = LaravelPatrowl::controls()->get($controlId);
 
-foreach ($control->assetsImpacted as $asset) {
-    echo $asset->value;
+// Assets impacted / potentially impacted by a control (ControlImpactedAssetData, auto-paginated).
+// The detail endpoint returns empty assets_impacted/assets_warning: use this method instead.
+// Needs an organization: the one set as default on the client, or pass ['org_id' => ...].
+foreach (LaravelPatrowl::controls()->assets($controlId)->items() as $asset) {
+    echo "{$asset->value} ({$asset->controlImpact})"; // e.g. "Warning" or "Impacted"
 }
 ```
 

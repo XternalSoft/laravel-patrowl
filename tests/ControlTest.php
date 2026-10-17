@@ -6,11 +6,13 @@ use Saloon\Http\Faking\MockClient;
 use Saloon\Http\Faking\MockResponse;
 use Xternalsoft\LaravelPatrowl\Data\ControlAssetData;
 use Xternalsoft\LaravelPatrowl\Data\ControlData;
+use Xternalsoft\LaravelPatrowl\Data\ControlImpactedAssetData;
 use Xternalsoft\LaravelPatrowl\Data\ControlLiteData;
 use Xternalsoft\LaravelPatrowl\Data\ControlVulnerabilityData;
 use Xternalsoft\LaravelPatrowl\Enums\ControlResultEnum;
 use Xternalsoft\LaravelPatrowl\Enums\ControlStatusEnum;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
+use Xternalsoft\LaravelPatrowl\Requests\Controls\GetControlAssetsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Controls\GetControlRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Controls\GetControlsRequest;
 
@@ -250,4 +252,43 @@ it('can handle partial and missing response fields gracefully in ControlData', f
         ->finishedAt->toBeNull()
         ->createdAt->toBeNull()
         ->updatedAt->toBeNull();
+});
+
+it('can get the assets impacted by a control', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        GetControlAssetsRequest::class => MockResponse::make([
+            'count' => 1,
+            'next' => null,
+            'previous' => null,
+            'results' => [
+                [
+                    'id' => 3121447,
+                    'value' => 'wa.it.example.com',
+                    'protection' => ['status' => 'easm', 'availability' => 'available'],
+                    'criticality' => 1,
+                    'score_level' => 0,
+                    'type' => 'domain',
+                    'control_impact' => 'Warning',
+                    'outside_business_hours' => 0,
+                ],
+            ],
+        ], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $assets = iterator_to_array(LaravelPatrowl::controls()->assets(266289)->items());
+
+    expect($assets)->toHaveCount(1)
+        ->and($assets[0])
+        ->toBeInstanceOf(ControlImpactedAssetData::class)
+        ->id->toBe(3121447)
+        ->value->toBe('wa.it.example.com')
+        ->type->toBe('domain')
+        ->controlImpact->toBe('Warning');
+
+    $mockClient->assertSent(fn (Saloon\Http\Request $request) => $request instanceof GetControlAssetsRequest
+        && $request->query()->get('control_id') === 266289);
 });
