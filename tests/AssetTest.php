@@ -10,8 +10,11 @@ use Xternalsoft\LaravelPatrowl\Data\AssetData;
 use Xternalsoft\LaravelPatrowl\Data\AssetGroupLiteData;
 use Xternalsoft\LaravelPatrowl\Data\AssetInListData;
 use Xternalsoft\LaravelPatrowl\Data\AssetOwnerData;
+use Xternalsoft\LaravelPatrowl\Data\AssetScreenshotData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
 use Xternalsoft\LaravelPatrowl\Data\DomainLiteData;
+use Xternalsoft\LaravelPatrowl\Data\RelatedTechnologyData;
+use Xternalsoft\LaravelPatrowl\Exceptions\AssetAlreadyExistsException;
 use Xternalsoft\LaravelPatrowl\Facades\LaravelPatrowl;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\AddTagToAssetRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\BulkUpdateAssetsRequest;
@@ -21,7 +24,6 @@ use Xternalsoft\LaravelPatrowl\Requests\Assets\GetAssetRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\GetAssetsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\RefreshAssetScoreRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\RemoveAssetTagFromAssetRequest;
-use Xternalsoft\LaravelPatrowl\Requests\Assets\ReplaceAssetRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\SyncAssetTagsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\UpdateAssetRequest;
 
@@ -62,21 +64,47 @@ it('can update an asset', function () {
         ->value->toBe('updated-asset.com');
 });
 
-it('can replace an asset', function () {
+it('throws when creating an asset that already exists', function () {
     config()->set('patrowl.api_token', 'fake-token');
 
     $mockClient = new MockClient([
-        ReplaceAssetRequest::class => MockResponse::make(getFakeAssetData(['value' => 'replaced-asset.com']), 200),
+        CreateAssetRequest::class => MockResponse::make(['status' => 'already_exists', 'message' => 'Asset already exists', 'data' => ['id' => 1]], 208),
     ]);
 
     LaravelPatrowl::withMockClient($mockClient);
 
-    $asset = LaravelPatrowl::assets()->replace(1, ['value' => 'replaced-asset.com']);
+    LaravelPatrowl::assets()->create(new CreateAssetData(value: 'asset.com', organization: 1));
+})->throws(AssetAlreadyExistsException::class);
 
-    $mockClient->assertSent(ReplaceAssetRequest::class);
-    expect($asset)->toBeInstanceOf(AssetData::class)
-        ->id->toBe(1)
-        ->value->toBe('replaced-asset.com');
+it('maps screenshot on asset detail', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        GetAssetRequest::class => MockResponse::make(getFakeAssetData(['screenshot' => ['url' => 'https://cdn/shot.png', 'taken_at' => '2026-09-20T06:00:00Z']]), 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    expect(LaravelPatrowl::assets()->get(1)->screenshot)->toBeInstanceOf(AssetScreenshotData::class)
+        ->url->toBe('https://cdn/shot.png')
+        ->takenAt->toBe('2026-09-20T06:00:00Z');
+});
+
+it('maps related technologies and thumbnail in asset list', function () {
+    $asset = AssetInListData::fromApi([
+        'id' => 1,
+        'thumbnail' => ['url' => 'https://cdn/thumb.png', 'taken_at' => null],
+        'related_technologies' => [
+            ['id' => 1, 'product' => 'nginx', 'vendor' => 'F5', 'version' => '1.25.3', 'impacted_by_cve' => true],
+            ['id' => 2, 'product' => 'openssl'],
+        ],
+    ]);
+
+    expect($asset->thumbnail?->url)->toBe('https://cdn/thumb.png')
+        ->and($asset->relatedTechnologies)->toHaveCount(2)
+        ->and($asset->relatedTechnologies[0])->toBeInstanceOf(RelatedTechnologyData::class)
+        ->and($asset->relatedTechnologies[0]->product)->toBe('nginx')
+        ->and($asset->toArray()['related_technologies'][1]['product'])->toBe('openssl');
 });
 
 it('can delete an asset', function () {
@@ -90,7 +118,8 @@ it('can delete an asset', function () {
 
     $response = LaravelPatrowl::assets()->delete(1);
 
-    $mockClient->assertSent(DeleteAssetRequest::class);
+    $mockClient->assertSent(fn (DeleteAssetRequest $request) => $request->resolveEndpoint() === '/assets/delete'
+        && $request->body()->all() === ['assets_id' => [1]]);
     expect($response->status())->toBe(204);
 });
 
@@ -103,9 +132,11 @@ it('can bulk update assets', function () {
 
     LaravelPatrowl::withMockClient($mockClient);
 
-    $response = LaravelPatrowl::assets()->bulkUpdate(['is_monitored' => true]);
+    $response = LaravelPatrowl::assets()->bulkUpdate(['asset_ids' => [1, 2], 'criticality' => 3]);
 
-    $mockClient->assertSent(BulkUpdateAssetsRequest::class);
+    // The trailing slash matters: without it the API redirects and the PATCH is replayed as a GET.
+    $mockClient->assertSent(fn (BulkUpdateAssetsRequest $request) => $request->resolveEndpoint() === '/assets/'
+        && $request->body()->all() === ['asset_ids' => [1, 2], 'criticality' => 3]);
     expect($response->status())->toBe(200);
 });
 
@@ -158,7 +189,8 @@ it('can remove a specific asset tag', function () {
 
     $mockClient->assertSent(RemoveAssetTagFromAssetRequest::class);
     $mockClient->assertSent(function (RemoveAssetTagFromAssetRequest $request) {
-        return $request->resolveEndpoint() === '/assets/1/tags/1/';
+        return $request->resolveEndpoint() === '/assets/tags/'
+            && $request->body()->all() === ['asset_ids' => [1], 'tag_ids' => [1]];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -169,7 +201,7 @@ it('can create an asset', function () {
     config()->set('patrowl.api_token', 'fake-token');
 
     $mockClient = new MockClient([
-        CreateAssetRequest::class => MockResponse::make([
+        CreateAssetRequest::class => MockResponse::make(['status' => 'success', 'message' => 'Asset created', 'warnings' => [], 'data' => [
             'id' => 1,
             'value' => 'new-asset.com',
             'criticality' => 1,
@@ -184,7 +216,7 @@ it('can create an asset', function () {
             'ip_state' => 'running',
             'liveness' => 'up',
             'has_webservers' => false,
-        ], 201),
+        ]], 201),
     ]);
 
     LaravelPatrowl::withMockClient($mockClient);
@@ -198,7 +230,7 @@ it('can create an asset', function () {
     $asset = LaravelPatrowl::assets()->create($data);
 
     $mockClient->assertSent(function (CreateAssetRequest $request) {
-        return $request->body()->all()['org_id'] === 1;
+        return $request->body()->all()['organization'] === 1;
     });
 
     expect($asset)
@@ -212,7 +244,7 @@ it('can create an asset with default organization id', function () {
     config()->set('patrowl.default_organization_id', 456);
 
     $mockClient = new MockClient([
-        CreateAssetRequest::class => MockResponse::make([
+        CreateAssetRequest::class => MockResponse::make(['status' => 'success', 'message' => 'Asset created', 'warnings' => [], 'data' => [
             'id' => 1,
             'value' => 'new-asset.com',
             'criticality' => 1,
@@ -227,7 +259,7 @@ it('can create an asset with default organization id', function () {
             'ip_state' => 'running',
             'liveness' => 'up',
             'has_webservers' => false,
-        ], 201),
+        ]], 201),
     ]);
 
     LaravelPatrowl::withMockClient($mockClient);
@@ -240,7 +272,7 @@ it('can create an asset with default organization id', function () {
     LaravelPatrowl::assets()->create($data);
 
     $mockClient->assertSent(function (CreateAssetRequest $request) {
-        return $request->body()->all()['org_id'] === 456;
+        return $request->body()->all()['organization'] === 456;
     });
 });
 
@@ -410,8 +442,8 @@ it('can add a tag to an asset', function () {
     $response = LaravelPatrowl::assets()->addTag(1, $data);
 
     $mockClient->assertSent(function (AddTagToAssetRequest $request) {
-        return $request->resolveEndpoint() === '/assets/1/tags/add' &&
-               $request->body()->all() === ['value' => 'my-tag', 'organization' => 1];
+        return $request->resolveEndpoint() === '/tags/' &&
+               $request->body()->all() === ['value' => 'my-tag', 'organization' => 1, 'asset_ids' => [1]];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
@@ -435,9 +467,43 @@ it('can add a tag to an asset with default organization id', function () {
     $response = LaravelPatrowl::assets()->addTag(1, $data);
 
     $mockClient->assertSent(function (AddTagToAssetRequest $request) {
-        return $request->body()->all() === ['value' => 'my-tag', 'organization' => 456];
+        return $request->body()->all() === ['value' => 'my-tag', 'organization' => 456, 'asset_ids' => [1]];
     });
 
     expect($response)->toBeInstanceOf(Response::class);
     expect($response->status())->toBe(200);
+});
+
+it('uses the connector default organization id instead of the laravel config', function () {
+    config()->set('patrowl.default_organization_id', 456);
+
+    $mockClient = new MockClient([
+        CreateAssetRequest::class => MockResponse::make(['status' => 'success', 'message' => 'Asset created', 'warnings' => [], 'data' => getFakeAssetData()], 201),
+    ]);
+
+    $connector = new Xternalsoft\LaravelPatrowl\LaravelPatrowl(apiToken: 'fake-token', baseUrl: 'https://patrowl.test', defaultOrganizationId: 789);
+    $connector->withMockClient($mockClient);
+
+    $connector->assets()->create(new CreateAssetData(value: 'asset.com'));
+
+    $mockClient->assertSent(fn (CreateAssetRequest $request) => $request->body()->all()['organization'] === 789);
+});
+
+it('sends the create asset payload expected by the api', function () {
+    $mockClient = new MockClient([
+        CreateAssetRequest::class => MockResponse::make(['status' => 'success', 'message' => 'Asset created', 'warnings' => [], 'data' => getFakeAssetData()], 201),
+    ]);
+
+    $connector = new Xternalsoft\LaravelPatrowl\LaravelPatrowl(apiToken: 'fake-token', baseUrl: 'https://patrowl.test', defaultOrganizationId: 1);
+    $connector->withMockClient($mockClient);
+
+    $connector->assets()->create(new CreateAssetData(value: 'asset.com', tags: [5], teams: [7]));
+
+    // org_id and suborganizations are rejected by the API ("This field is not supported.")
+    $mockClient->assertSent(function (CreateAssetRequest $request) {
+        $body = $request->body()->all();
+        ksort($body);
+
+        return $body === ['organization' => 1, 'tags' => [5], 'teams' => [7], 'value' => 'asset.com'];
+    });
 });

@@ -102,9 +102,13 @@ PATROWL_API_TOKEN="your_token_here" php examples/organizations_list.php
 
 #### 15. Get Organization Details
 ```bash
-# Get details for the default organization of the current user
-PATROWL_API_TOKEN="your_token_here" php examples/organizations_get.php
-
-# Or get details for a specific organization by ID
 PATROWL_API_TOKEN="your_token_here" php examples/organizations_get.php <organization_id>
+```
+
+### EASM Examples
+
+#### 16. List any EASM resource
+```bash
+# resource: domains, ipv4s, resolutions, asns, services, webServers, certificates, vendors, products, technologies, technologyDetections, cves
+PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id php examples/easm_list.php domains 20
 ```

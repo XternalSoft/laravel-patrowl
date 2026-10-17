@@ -26,14 +26,19 @@ final class AddTagToAssetRequest extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return "/assets/{$this->assetId}/tags/add";
+        return '/tags/';
     }
 
     /**
+     * Creates the tag and links it to the asset in one call.
+     *
      * @return array<string, mixed>
      */
     protected function defaultBody(): array
     {
-        return $this->mergeOrganizationId($this->data->toArray(), $this->orgId, 'organization');
+        return [
+            ...$this->mergeOrganizationId($this->data->toArray(), $this->orgId, 'organization'),
+            'asset_ids' => [$this->assetId],
+        ];
     }
 }

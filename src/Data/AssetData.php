@@ -50,7 +50,8 @@ class AssetData
         public bool $has_webservers,
         /** @var array<int, array<string, mixed>> */
         public array $suborganizations_display,
-        public mixed $ip_state
+        public mixed $ip_state,
+        public ?AssetScreenshotData $screenshot = null
     ) {}
 
     /**
@@ -86,7 +87,8 @@ class AssetData
             www_related_domain: isset($data['www_related_domain']) ? DomainLiteData::fromApi($data['www_related_domain']) : null,
             has_webservers: $data['has_webservers'] ?? false,
             suborganizations_display: $data['suborganizations_display'] ?? [],
-            ip_state: $data['ip_state'] ?? null
+            ip_state: $data['ip_state'] ?? null,
+            screenshot: isset($data['screenshot']) ? AssetScreenshotData::fromApi($data['screenshot']) : null
         );
     }
 
@@ -124,6 +126,7 @@ class AssetData
             'has_webservers' => $this->has_webservers,
             'suborganizations_display' => $this->suborganizations_display,
             'ip_state' => $this->ip_state,
+            'screenshot' => $this->screenshot?->toArray(),
         ];
     }
 }

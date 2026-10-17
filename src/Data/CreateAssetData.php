@@ -7,8 +7,6 @@ namespace Xternalsoft\LaravelPatrowl\Data;
 use Xternalsoft\LaravelPatrowl\Enums\ComplexityEnum;
 use Xternalsoft\LaravelPatrowl\Enums\ExposureEnum;
 
-use function config;
-
 final class CreateAssetData
 {
     public function __construct(
@@ -22,7 +20,7 @@ final class CreateAssetData
         /** @var int[]|null */
         public ?array $owners = null,
         /** @var int[]|null */
-        public ?array $suborganizations = null
+        public ?array $teams = null
     ) {}
 
     /**
@@ -31,14 +29,14 @@ final class CreateAssetData
     public function toArray(): array
     {
         $data = [
-            'org_id' => $this->organization ?? config('patrowl.default_organization_id'),
+            'organization' => $this->organization,
             'value' => $this->value,
             'description' => $this->description,
             'criticality' => $this->criticality?->value,
             'exposure' => $this->exposure?->value,
             'tags' => $this->tags,
             'owners' => $this->owners,
-            'suborganizations' => $this->suborganizations,
+            'teams' => $this->teams,
         ];
 
         return array_filter($data, fn ($value) => $value !== null);

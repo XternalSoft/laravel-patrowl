@@ -303,3 +303,45 @@ it('can add a tag to an asset group with default organization id', function () {
     expect($response)->toBeInstanceOf(Response::class);
     expect($response->status())->toBe(201);
 });
+
+it('maps counts on asset group detail', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $counts = ['assets' => 10, 'vulnerabilities' => 4, 'risks' => 2, 'assets_with_risks' => 1];
+
+    $mockClient = new MockClient([
+        GetAssetGroupRequest::class => MockResponse::make(['id' => 1, 'title' => 'Group', 'counts' => $counts], 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $group = LaravelPatrowl::assetGroups()->get(1);
+
+    expect($group->counts)->toBe($counts)
+        ->and($group->toArray()['counts'])->toBe($counts);
+});
+
+it('maps vulns by severity in asset group list', function () {
+    $vulns = ['critical' => 1, 'high' => 2, 'medium' => 3, 'low' => 4, 'info' => 5];
+
+    $group = AssetGroupInListData::fromApi(['id' => 1, 'title' => 'Group', 'vulns_by_severity' => $vulns]);
+
+    expect($group->vulnsBySeverity)->toBe($vulns)
+        ->and($group->toArray()['vulns_by_severity'])->toBe($vulns);
+});
+
+it('sends medium criticality by default when creating an asset group', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        CreateAssetGroupRequest::class => MockResponse::make(['id' => 1, 'title' => 'New Group'], 201),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    LaravelPatrowl::assetGroups()->create(new CreateAssetGroupData(title: 'New Group', organization: 1));
+
+    $mockClient->assertSent(function (CreateAssetGroupRequest $request) {
+        return $request->body()->all()['criticality'] === ComplexityEnum::Medium->value;
+    });
+});

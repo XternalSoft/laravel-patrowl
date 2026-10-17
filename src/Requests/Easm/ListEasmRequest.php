@@ -2,26 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Xternalsoft\LaravelPatrowl\Requests\AssetTags;
+namespace Xternalsoft\LaravelPatrowl\Requests\Easm;
 
+use Closure;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Http\Response;
 use Saloon\PaginationPlugin\Contracts\MapPaginatedResponseItems;
 use Saloon\PaginationPlugin\Contracts\Paginatable;
-use Xternalsoft\LaravelPatrowl\Data\AssetTagData;
 use Xternalsoft\LaravelPatrowl\Requests\Concerns\HasOrganizationContext;
 
-final class GetAssetTagsRequest extends Request implements MapPaginatedResponseItems, Paginatable
+/**
+ * Lists any EASM resource (domains, ipv4s, services, ...): they all share the same list contract.
+ *
+ * @template TData of object
+ */
+final class ListEasmRequest extends Request implements MapPaginatedResponseItems, Paginatable
 {
     use HasOrganizationContext;
 
     protected Method $method = Method::GET;
 
     /**
+     * @param  Closure(array<string, mixed>): TData  $mapper
      * @param  array<string, mixed>  $queryParams
      */
     public function __construct(
+        protected string $endpoint,
+        protected Closure $mapper,
         protected array $queryParams = [],
         protected ?int $orgId = null,
         protected int $limit = 100
@@ -29,19 +37,19 @@ final class GetAssetTagsRequest extends Request implements MapPaginatedResponseI
 
     public function resolveEndpoint(): string
     {
-        return '/assets/tags/';
+        return $this->endpoint;
     }
 
     /**
-     * @return array<int, AssetTagData>
+     * @return array<int, TData>
      */
     public function mapPaginatedResponseItems(Response $response): array
     {
-        return array_map(fn (array $item) => AssetTagData::fromApi($item), $response->json('results', []));
+        return array_map($this->mapper, $response->json('results', []));
     }
 
     /**
-     * @return array<int, AssetTagData>
+     * @return array<int, TData>
      */
     public function createDtoFromResponse(Response $response): array
     {

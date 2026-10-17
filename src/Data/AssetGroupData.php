@@ -21,7 +21,9 @@ final class AssetGroupData
         public ?string $createdAt = null,
         public ?string $updatedAt = null,
         public ?int $todosCount = null,
-        public ?int $commentsCount = null
+        public ?int $commentsCount = null,
+        /** @var array{assets: int, vulnerabilities: int, risks: int, assets_with_risks: int}|null */
+        public ?array $counts = null
     ) {}
 
     /**
@@ -41,7 +43,8 @@ final class AssetGroupData
             createdAt: $data['created_at'] ?? null,
             updatedAt: $data['updated_at'] ?? null,
             todosCount: $data['todos_count'] ?? null,
-            commentsCount: $data['comments_count'] ?? null
+            commentsCount: $data['comments_count'] ?? null,
+            counts: $data['counts'] ?? null
         );
     }
 
@@ -63,6 +66,7 @@ final class AssetGroupData
             'updated_at' => $this->updatedAt,
             'todos_count' => $this->todosCount,
             'comments_count' => $this->commentsCount,
+            'counts' => $this->counts,
         ];
     }
 }

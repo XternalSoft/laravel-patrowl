@@ -24,18 +24,12 @@ try {
     echo "Fetching organizations...\n";
     $organizations = $client->organizations()->all();
 
-    foreach ($organizations->items() as $org) {
+    foreach ($organizations as $org) {
         echo "------------------------------------------------------------\n";
-        echo "Organization Name : {$org->identity->name}\n";
-        echo "ID                : {$org->identity->id}\n";
-        echo "Slug              : {$org->identity->slug}\n";
-        echo 'Active            : '.($org->identity->isActive ? 'Yes' : 'No')."\n";
-        echo "Owner             : {$org->members->owner}\n";
-        echo "Members Count     : {$org->members->userCount}\n";
-        echo 'SSO Enabled       : '.($org->features->isSso ? 'Yes' : 'No')."\n";
-        echo "EASM Credits      : {$org->credits->easm->available} / {$org->credits->easm->limit}\n";
-        echo "Pentest Credits   : {$org->credits->pentest->available} / {$org->credits->pentest->limit}\n";
-        echo "Pentested Assets  : {$org->monitoring->pentestedAssets}\n";
+        echo "Organization Name : {$org->name}\n";
+        echo "ID                : {$org->id}\n";
+        echo "Slug              : {$org->slug}\n";
+        echo "Tenant            : {$org->tenantName} (ID: {$org->tenantId})\n";
     }
     echo "------------------------------------------------------------\n";
     echo "Done.\n";
