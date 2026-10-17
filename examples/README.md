@@ -28,6 +28,12 @@ PATROWL_API_TOKEN=your_token_here PATROWL_DEFAULT_ORGANIZATION_ID=your_org_id ph
 PATROWL_API_TOKEN=your_token_here php examples/assets_get.php <asset_id>
 ```
 
+#### Move an asset to another organization
+The source asset is kept unless `--delete-source` is passed.
+```bash
+PATROWL_API_TOKEN=your_token_here php examples/assets_move.php <asset_id> <target_organization_id> [--delete-source]
+```
+
 #### 3. List Controls (with Auto-Pagination)
 ```bash
 PATROWL_API_TOKEN="your_token_here" php examples/controls_list.php

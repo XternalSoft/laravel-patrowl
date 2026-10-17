@@ -507,3 +507,86 @@ it('sends the create asset payload expected by the api', function () {
         return $body === ['organization' => 1, 'tags' => [5], 'teams' => [7], 'value' => 'asset.com'];
     });
 });
+
+function fakeTargetTagsResponse(array $tags): MockResponse
+{
+    return MockResponse::make(['results' => $tags, 'next' => null], 200);
+}
+
+it('moves an asset, reusing existing tags and creating the missing ones', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        GetAssetRequest::class => MockResponse::make(getFakeAssetData([
+            'id' => 10,
+            'asset_owners' => [['id' => 7, 'email' => 'o@x.io']],
+            'asset_tags' => [
+                ['id' => 1, 'value' => 'prod', 'organization' => 1],
+                ['id' => 2, 'value' => 'legacy', 'organization' => 1],
+            ],
+        ]), 200),
+        Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetTagsRequest::class => fakeTargetTagsResponse([
+            ['id' => 50, 'value' => 'prod', 'organization' => 2],
+        ]),
+        CreateAssetRequest::class => MockResponse::make(['data' => getFakeAssetData(['id' => 99])], 201),
+        AddTagToAssetRequest::class => MockResponse::make([], 201),
+        DeleteAssetRequest::class => MockResponse::make([], 204),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $result = LaravelPatrowl::assets()->move(10, 2);
+
+    expect($result->asset->id)->toBe(99)
+        ->and($result->createdTags)->toBe(['legacy'])
+        ->and($result->failedTags)->toBe([])
+        ->and($result->sourceDeleted)->toBeTrue()
+        ->and($result->sourceOwners[0]->email)->toBe('o@x.io');
+
+    $mockClient->assertSent(fn (Saloon\Http\PendingRequest|Saloon\Http\Request $request) => $request instanceof CreateAssetRequest
+        && $request->body()->all()['organization'] === 2
+        && $request->body()->all()['tags'] === [50]);
+    $mockClient->assertSent(fn ($request) => $request instanceof AddTagToAssetRequest
+        && $request->body()->all()['value'] === 'legacy'
+        && $request->body()->all()['asset_ids'] === [99]);
+    $mockClient->assertSent(DeleteAssetRequest::class);
+});
+
+it('keeps the source asset when the target already has it', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        GetAssetRequest::class => MockResponse::make(getFakeAssetData(['id' => 10]), 200),
+        Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetTagsRequest::class => fakeTargetTagsResponse([]),
+        CreateAssetRequest::class => MockResponse::make(['data' => ['id' => 1]], 208),
+        DeleteAssetRequest::class => MockResponse::make([], 204),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    expect(fn () => LaravelPatrowl::assets()->move(10, 2))->toThrow(AssetAlreadyExistsException::class);
+    $mockClient->assertNotSent(DeleteAssetRequest::class);
+});
+
+it('reports failed tag creations and can keep the source asset', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        GetAssetRequest::class => MockResponse::make(getFakeAssetData([
+            'id' => 10,
+            'asset_tags' => [['id' => 2, 'value' => 'legacy', 'organization' => 1]],
+        ]), 200),
+        Xternalsoft\LaravelPatrowl\Requests\AssetTags\GetTagsRequest::class => fakeTargetTagsResponse([]),
+        CreateAssetRequest::class => MockResponse::make(['data' => getFakeAssetData(['id' => 99])], 201),
+        AddTagToAssetRequest::class => MockResponse::make([], 400),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    $result = LaravelPatrowl::assets()->move(10, 2, deleteSource: false);
+
+    expect($result->failedTags)->toBe(['legacy'])
+        ->and($result->createdTags)->toBe([])
+        ->and($result->sourceDeleted)->toBeFalse();
+    $mockClient->assertNotSent(DeleteAssetRequest::class);
+});
