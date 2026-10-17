@@ -8,7 +8,10 @@ use Saloon\Http\Response;
 use Saloon\PaginationPlugin\Paginator;
 use Xternalsoft\LaravelPatrowl\Data\AddTagToAssetData;
 use Xternalsoft\LaravelPatrowl\Data\AssetData;
+use Xternalsoft\LaravelPatrowl\Data\AssetTagData;
 use Xternalsoft\LaravelPatrowl\Data\CreateAssetData;
+use Xternalsoft\LaravelPatrowl\Data\MoveAssetResultData;
+use Xternalsoft\LaravelPatrowl\Data\TagData;
 use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\AddTagToAssetRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Assets\BulkUpdateAssetsRequest;
@@ -50,6 +53,55 @@ final readonly class AssetResource
     public function create(CreateAssetData $data): AssetData
     {
         return $this->connector->send(new CreateAssetRequest($data, $this->connector->getDefaultOrganizationId()))->dtoOrFail();
+    }
+
+    /**
+     * Move an asset to another organization: the asset is created in the target
+     * organization first, and the source is deleted only if that creation succeeded.
+     *
+     * Tags are matched by value in the target organization and created when missing.
+     * Owners, teams and groups are not transferred (the source ones are returned in the result), and the history (findings, score,
+     * controls) of the source asset is lost with its deletion.
+     *
+     * @throws \Xternalsoft\LaravelPatrowl\Exceptions\AssetAlreadyExistsException when the asset already exists in the target organization (the source is left untouched)
+     */
+    public function move(int $assetId, int $targetOrganizationId, bool $deleteSource = true): MoveAssetResultData
+    {
+        $source = $this->get($assetId);
+
+        $targetTagIds = $this->connector->assetTags()->tags(['org_id' => $targetOrganizationId])
+            ->collect()
+            ->mapWithKeys(fn (TagData $tag): array => [$tag->value => $tag->id])
+            ->all();
+
+        $sourceTagValues = array_map(fn (AssetTagData $tag): string => $tag->value, $source->asset_tags ?? []);
+        $existingTagIds = array_values(array_intersect_key($targetTagIds, array_flip($sourceTagValues)));
+        $missingTagValues = array_values(array_diff($sourceTagValues, array_keys($targetTagIds)));
+
+        $asset = $this->create(new CreateAssetData(
+            value: $source->value,
+            organization: $targetOrganizationId,
+            description: $source->description,
+            criticality: $source->criticality,
+            exposure: $source->exposure,
+            tags: $existingTagIds ?: null,
+        ));
+
+        $createdTags = [];
+        $failedTags = [];
+        foreach ($missingTagValues as $value) {
+            $response = $this->addTag($asset->id, new AddTagToAssetData($value, $targetOrganizationId));
+
+            if ($response->successful()) {
+                $createdTags[] = $value;
+            } else {
+                $failedTags[] = $value;
+            }
+        }
+
+        $sourceDeleted = $deleteSource && $this->delete($assetId)->successful();
+
+        return new MoveAssetResultData($asset, $createdTags, $failedTags, $sourceDeleted, $source->asset_owners ?? [], $source->groups ?? []);
     }
 
     /**

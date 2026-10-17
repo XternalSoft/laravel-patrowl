@@ -7,6 +7,7 @@ namespace Xternalsoft\LaravelPatrowl\Resources;
 use Saloon\PaginationPlugin\Paginator;
 use Xternalsoft\LaravelPatrowl\Data\ControlData;
 use Xternalsoft\LaravelPatrowl\LaravelPatrowl;
+use Xternalsoft\LaravelPatrowl\Requests\Controls\GetControlAssetsRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Controls\GetControlRequest;
 use Xternalsoft\LaravelPatrowl\Requests\Controls\GetControlsRequest;
 
@@ -37,5 +38,21 @@ final readonly class ControlResource
     public function get(int $id): ControlData
     {
         return $this->connector->send(new GetControlRequest($id))->dtoOrFail();
+    }
+
+    /**
+     * Get the assets impacted or potentially impacted by a control, with auto-pagination.
+     * The detail endpoint leaves assets_impacted/assets_warning empty: use this one instead.
+     *
+     * @param  array<string, mixed>  $queryParams
+     */
+    public function assets(int $controlId, array $queryParams = []): Paginator
+    {
+        return $this->connector->paginate(new GetControlAssetsRequest(
+            $controlId,
+            $queryParams,
+            $this->connector->getDefaultOrganizationId(),
+            $this->connector->getLimit()
+        ));
     }
 }

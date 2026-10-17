@@ -217,6 +217,30 @@ $response = LaravelPatrowl::assets()->syncTags($assetId, [12, 34]);
 $response = LaravelPatrowl::assets()->removeTag($assetId, $tagId);
 ```
 
+#### Move an asset to another organization
+
+`move()` creates the asset in the target organization, then deletes the source:
+
+```php
+$result = LaravelPatrowl::assets()->move($assetId, $targetOrganizationId);
+
+$result->asset;        // AssetData created in the target organization
+$result->createdTags;  // tags that did not exist in the target organization and were created
+$result->failedTags;   // tags that could not be created (the asset is moved without them)
+$result->sourceDeleted;
+$result->sourceOwners; // owners and groups of the source asset, NOT copied
+$result->sourceGroups;
+
+// Keep the source asset
+$result = LaravelPatrowl::assets()->move($assetId, $targetOrganizationId, deleteSource: false);
+```
+
+- Value, description, criticality and exposure are copied. Tags are matched by value in the target organization and created when missing.
+- Owners, teams and groups are not copied.
+- The source is deleted only if the creation succeeded, and with it its history (findings, score, controls) is lost.
+- If the asset already exists in the target organization, an `AssetAlreadyExistsException` is thrown and the source is left untouched.
+- The operation is not atomic: if a tag cannot be created, the asset is still created and the tag is listed in `failedTags`.
+
 ### Asset groups
 
 #### List and get asset groups
@@ -356,8 +380,11 @@ foreach ($controls->items() as $control) {
 // ControlData in detail (impacted assets and vulnerabilities)
 $control = LaravelPatrowl::controls()->get($controlId);
 
-foreach ($control->assetsImpacted as $asset) {
-    echo $asset->value;
+// Assets impacted / potentially impacted by a control (ControlImpactedAssetData, auto-paginated).
+// The detail endpoint returns empty assets_impacted/assets_warning: use this method instead.
+// Needs an organization: the one set as default on the client, or pass ['org_id' => ...].
+foreach (LaravelPatrowl::controls()->assets($controlId)->items() as $asset) {
+    echo "{$asset->value} ({$asset->controlImpact})"; // e.g. "Warning" or "Impacted"
 }
 ```
 
