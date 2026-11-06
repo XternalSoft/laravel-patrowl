@@ -144,6 +144,20 @@ it('can get a specific risk', function () {
         ->status->toBe(RiskStatusEnum::New);
 });
 
+it('sends the organization id when getting a risk', function () {
+    config()->set('patrowl.api_token', 'fake-token');
+
+    $mockClient = new MockClient([
+        GetRiskRequest::class => MockResponse::make(getFakeRiskData(), 200),
+    ]);
+
+    LaravelPatrowl::withMockClient($mockClient);
+
+    LaravelPatrowl::risks()->get(1, 42);
+
+    $mockClient->assertSent(fn (GetRiskRequest $request) => $request->query()->all() === ['org_id' => 42]);
+});
+
 it('can export risks to csv', function () {
     config()->set('patrowl.api_token', 'fake-token');
 

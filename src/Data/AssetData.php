@@ -32,8 +32,8 @@ class AssetData
         public int $score_level,
         /** @var array<RelatedTechnologyData>|null */
         public ?array $technologies,
-        /** @var array<AssetOwnerData>|null */
-        public ?array $asset_owners,
+        /** @var array<AssetOwnerData> */
+        public array $asset_owners,
         /** @var array<int> */
         public array $owners,
         /** @var array<AssetGroupLiteData>|null */
@@ -75,7 +75,7 @@ class AssetData
             updated_at: $data['updated_at'] ?? null,
             score_level: $data['score_level'],
             technologies: isset($data['technologies']) ? array_map(fn (array $tech) => RelatedTechnologyData::fromApi($tech), $data['technologies']) : null,
-            asset_owners: isset($data['asset_owners']) ? array_map(fn (array $owner) => AssetOwnerData::fromApi($owner), $data['asset_owners']) : null,
+            asset_owners: array_map(fn (array $owner) => AssetOwnerData::fromApi($owner), $data['asset_owners'] ?? []),
             owners: $data['owners'] ?? [],
             groups: isset($data['groups']) ? array_map(fn (array $group) => AssetGroupLiteData::fromApi($group), $data['groups']) : null,
             organization: $data['organization'] ?? null,
@@ -113,7 +113,7 @@ class AssetData
             'updated_at' => $this->updated_at,
             'score_level' => $this->score_level,
             'technologies' => $this->technologies ? array_map(fn (RelatedTechnologyData $tech) => $tech->toArray(), $this->technologies) : null,
-            'asset_owners' => $this->asset_owners ? array_map(fn (AssetOwnerData $owner) => $owner->toArray(), $this->asset_owners) : null,
+            'asset_owners' => array_map(fn (AssetOwnerData $owner) => $owner->toArray(), $this->asset_owners),
             'owners' => $this->owners,
             'groups' => $this->groups ? array_map(fn (AssetGroupLiteData $group) => $group->toArray(), $this->groups) : null,
             'organization' => $this->organization,

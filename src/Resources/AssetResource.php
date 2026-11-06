@@ -101,7 +101,7 @@ final readonly class AssetResource
 
         $sourceDeleted = $deleteSource && $this->delete($assetId)->successful();
 
-        return new MoveAssetResultData($asset, $createdTags, $failedTags, $sourceDeleted, $source->asset_owners ?? [], $source->groups ?? []);
+        return new MoveAssetResultData($asset, $createdTags, $failedTags, $sourceDeleted, $source->asset_owners, $source->groups ?? []);
     }
 
     /**
