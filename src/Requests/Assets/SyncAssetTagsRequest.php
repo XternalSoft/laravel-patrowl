@@ -30,6 +30,6 @@ final class SyncAssetTagsRequest extends Request implements HasBody
      */
     protected function defaultBody(): array
     {
-        return ['tags' => $this->tagIds];
+        return ['ids' => $this->tagIds];
     }
 }

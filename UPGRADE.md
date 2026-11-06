@@ -139,3 +139,32 @@ These are new, backward compatible fields:
 | `AssetGroupInListData` | `vulnsBySeverity` | `?array{critical, high, medium, low, info}` |
 
 If you extend or construct these DTOs positionally, note that the new properties were appended at the end of each constructor.
+
+## Aligning with Patrowl API 2.40
+
+Patrowl API **2.40** is now the minimum supported version.
+
+### Medium impact
+
+#### `assets()->syncTags()` sends `ids`
+
+The package now posts `{"ids": [...]}` to `POST /assets/{id}/tags`. The method signature is unchanged, nothing to do on your side.
+
+#### `risks()->get()` requires an organization
+
+`GET /risks/{id}/` now requires `org_id`. The method uses the configured default organization, or the one you pass:
+
+```php
+$risk = LaravelPatrowl::risks()->get($riskId);
+$risk = LaravelPatrowl::risks()->get($riskId, orgId: 1);
+```
+
+#### `AssetData::$asset_owners` is no longer nullable
+
+It is now an `array<AssetOwnerData>` (empty when the asset has no owner). Replace `$asset->asset_owners ?? []` by `$asset->asset_owners`. If you construct `AssetData` yourself, pass an array instead of `null`.
+
+### Low impact
+
+- `AssetInListData::$scoreLevel` is typed `?int` instead of `?float`.
+- `AssetTagPolicyData` and `AssetTagPolicyFilterData` were removed. They were not used by any package method.
+- The `service_state` asset filter no longer accepts `unknown`.

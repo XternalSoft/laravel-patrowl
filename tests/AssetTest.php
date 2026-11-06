@@ -169,7 +169,7 @@ it('can sync tags for an asset', function () {
     $mockClient->assertSent(SyncAssetTagsRequest::class);
     $mockClient->assertSent(function (SyncAssetTagsRequest $request) {
         return $request->resolveEndpoint() === '/assets/1/tags' &&
-               $request->body()->all() === ['tags' => [1, 2]];
+               $request->body()->all() === ['ids' => [1, 2]];
     });
 
     expect($response)->toBeInstanceOf(Response::class);

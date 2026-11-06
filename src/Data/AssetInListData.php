@@ -32,7 +32,7 @@ final class AssetInListData
         /** @var array<int, mixed>|null */
         public ?array $assetTags = null,
         public ?int $organization = null,
-        public ?float $scoreLevel = null,
+        public ?int $scoreLevel = null,
         /** @var array<int, mixed>|null */
         public ?array $assetOwners = null,
         public ?LivenessEnum $liveness = null,

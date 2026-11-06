@@ -11,7 +11,7 @@ A clean, fluent, and developer-friendly PHP wrapper for the Patrowl API. This pa
 
 - PHP 8.4+
 - Laravel 12 or 13
-- A Patrowl API token (Patrowl API 2.38+)
+- A Patrowl API token (Patrowl API 2.40+)
 
 ## Installation
 
@@ -343,8 +343,9 @@ foreach (LaravelPatrowl::risks()->all(['severity' => 4])->items() as $risk) {
     echo $risk->title.' ('.$risk->severity->name.')';
 }
 
-// RiskData in detail
+// RiskData in detail (org_id is required by the API: defaults to the configured organization)
 $risk = LaravelPatrowl::risks()->get($riskId);
+$risk = LaravelPatrowl::risks()->get($riskId, orgId: 1);
 
 // Export to CSV (org_id is required by the API)
 file_put_contents('risks.csv', LaravelPatrowl::risks()->exportCsv());

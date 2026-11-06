@@ -34,13 +34,16 @@ final readonly class RiskResource
     }
 
     /**
-     * Get a specific risk.
+     * Get a specific risk (the API requires an organization: defaults to the configured one).
      *
      * @see https://developer.patrowl.io/#patrowl-dashboard-api-risks
      */
-    public function get(int $id): RiskData
+    public function get(int $id, ?int $orgId = null): RiskData
     {
-        return $this->connector->send(new GetRiskRequest($id))->dtoOrFail();
+        return $this->connector->send(new GetRiskRequest(
+            $id,
+            $orgId ?? $this->connector->getDefaultOrganizationId()
+        ))->dtoOrFail();
     }
 
     /**
